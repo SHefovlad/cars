@@ -39,25 +39,25 @@ while not STOP:
     sm_12_img.set_colorkey(CK)
     sm_13_img.set_colorkey(CK)
     sm_14_img.set_colorkey(CK)
+    """
+    sm_21_img = pygame.image.load(os.path.join(img_folder, 'sm-21.png')).convert()
+    sm_22_img = pygame.image.load(os.path.join(img_folder, 'sm-22.png')).convert()
+    sm_23_img = pygame.image.load(os.path.join(img_folder, 'sm-23.png')).convert()
+    sm_24_img = pygame.image.load(os.path.join(img_folder, 'sm-24.png')).convert()
+    sm_21_img.set_colorkey(CK)
+    sm_22_img.set_colorkey(CK)
+    sm_23_img.set_colorkey(CK)
+    sm_24_img.set_colorkey(CK)
 
-    #sm_21_img = pygame.image.load(os.path.join(img_folder, 'sm-21.png')).convert()
-    #sm_22_img = pygame.image.load(os.path.join(img_folder, 'sm-22.png')).convert()
-    #sm_23_img = pygame.image.load(os.path.join(img_folder, 'sm-23.png')).convert()
-    #sm_24_img = pygame.image.load(os.path.join(img_folder, 'sm-24.png')).convert()
-    #sm_21_img.set_colorkey(CK)
-    #sm_22_img.set_colorkey(CK)
-    #sm_23_img.set_colorkey(CK)
-    #sm_24_img.set_colorkey(CK)
-
-    #sm_31_img = pygame.image.load(os.path.join(img_folder, 'sm-31.png')).convert()
-    #sm_32_img = pygame.image.load(os.path.join(img_folder, 'sm-32.png')).convert()
-    #sm_33_img = pygame.image.load(os.path.join(img_folder, 'sm-33.png')).convert()
-    #sm_34_img = pygame.image.load(os.path.join(img_folder, 'sm-34.png')).convert()
-    #sm_31_img.set_colorkey(CK)
-    #sm_32_img.set_colorkey(CK)
-    #sm_33_img.set_colorkey(CK)
-    #sm_34_img.set_colorkey(CK)
-
+    sm_31_img = pygame.image.load(os.path.join(img_folder, 'sm-31.png')).convert()
+    sm_32_img = pygame.image.load(os.path.join(img_folder, 'sm-32.png')).convert()
+    sm_33_img = pygame.image.load(os.path.join(img_folder, 'sm-33.png')).convert()
+    sm_34_img = pygame.image.load(os.path.join(img_folder, 'sm-34.png')).convert()
+    sm_31_img.set_colorkey(CK)
+    sm_32_img.set_colorkey(CK)
+    sm_33_img.set_colorkey(CK)
+    sm_34_img.set_colorkey(CK)
+    """
     ps_1_img = pygame.image.load(os.path.join(img_folder, 'ps-1.png')).convert()
     ps_11_img = pygame.image.load(os.path.join(img_folder, 'ps-11.png')).convert()
     ps_2_img = pygame.image.load(os.path.join(img_folder, 'ps-2.png')).convert()
@@ -157,55 +157,61 @@ while not STOP:
                     oil.rect.x = 200
                 if oil.rect.right >= 800:
                     oil.rect.right = 800
+
+                if self.rect.x <= 200:
+                    self.rect.x += 1
+                if self.rect.right >= 800:
+                    self.rect.x -= 1
                 if not keys[pygame.K_SPACE]:
-                    if keys[pygame.K_LEFT] and self.rect.x >= 250:
-                        if not Flip:
-                            FLIP = 1
-                            flip = 1
-                        self.rect.x -= 5
-                        left = 5
-                        for i in bots:
-                            if i.rect.y <= self.rect.bottom and i.rect.bottom >= self.rect.y + 20 and i.rect.right >= self.rect.x + 15 + ((i.rect.y - self.rect.y) / 4) and i.rect.x <= self.rect.right - 50:
-                                i.rect.x -= 2
-                                self.rect.x += 3
-                                left = 0
-                                for _ in bots:
-                                    if _ != i:
-                                        if _.rect.x >= 250:
-                                            if _.rect.y <= i.rect.bottom and _.rect.bottom >= i.rect.y + 20 and _.rect.right >= i.rect.x + 20 and _.rect.x <= i.rect.right - 20:
-                                                _.rect.x -= 5
-                                        else:
-                                            self.rect.x += 5
-                                            i.rect.x += 5
-                                if i.rect.x <= 250:
-                                    self.rect.x += 5
-                                    i.rect.x += 5
-                    elif keys[pygame.K_RIGHT] and self.rect.x <= 660:
-                        if not Flip:
-                            FLIP = -1
-                            flip = -1
-                        self.rect.x += 5
-                        right = 5
-                        for i in bots:
-                            if i.rect.y <= self.rect.bottom and i.rect.bottom >= self.rect.y + 20 and i.rect.right >= self.rect.x + 50 and i.rect.x <= self.rect.right - 15 - ((i.rect.y - self.rect.y) / 4):
-                                i.rect.x += 2
-                                self.rect.x -= 3
-                                right = 0
-                                for _ in bots:
-                                    if _ != i:
-                                        if _.rect.right <= 750:
-                                            if _.rect.y <= i.rect.bottom and _.rect.bottom >= i.rect.y + 20 and _.rect.right >= i.rect.x + 20 and _.rect.x <= i.rect.right - 20:
-                                                _.rect.x += 5
-                                        else:
-                                            self.rect.x -= 5
-                                            i.rect.x -= 5
-                                if i.rect.right >= 750:
-                                    self.rect.x -= 5
-                                    i.rect.x -= 5
-                    else:
-                        flip = 0
-                        FLIP = 0
-                        Flip = False
+                    if not (keys[pygame.K_LEFT] and keys[pygame.K_RIGHT]):
+                        if keys[pygame.K_LEFT] and self.rect.x >= 250:
+                            if not Flip:
+                                FLIP = 1
+                                flip = 1
+                            self.rect.x -= 5
+                            left = 5
+                            for i in bots:
+                                if i.rect.y <= self.rect.bottom and i.rect.bottom >= self.rect.y + 20 and i.rect.right >= self.rect.x + 15 + ((i.rect.y - self.rect.y) / 4) and i.rect.x <= self.rect.right - 50:
+                                    i.rect.x -= 2
+                                    self.rect.x += 3
+                                    left = 0
+                                    for _ in bots:
+                                        if _ != i:
+                                            if _.rect.x >= 250:
+                                                if _.rect.y <= i.rect.bottom and _.rect.bottom >= i.rect.y + 20 and _.rect.right >= i.rect.x + 20 and _.rect.x <= i.rect.right - 20:
+                                                    _.rect.x -= 5
+                                            else:
+                                                self.rect.x += 5
+                                                i.rect.x += 5
+                                    if i.rect.x <= 250:
+                                        self.rect.x += 5
+                                        i.rect.x += 5
+                        elif keys[pygame.K_RIGHT] and self.rect.x <= 660:
+                            if not Flip:
+                                FLIP = -1
+                                flip = -1
+                            self.rect.x += 5
+                            right = 5
+                            for i in bots:
+                                if i.rect.y <= self.rect.bottom and i.rect.bottom >= self.rect.y + 20 and i.rect.right >= self.rect.x + 50 and i.rect.x <= self.rect.right - 15 - ((i.rect.y - self.rect.y) / 4):
+                                    i.rect.x += 2
+                                    self.rect.x -= 3
+                                    right = 0
+                                    for _ in bots:
+                                        if _ != i:
+                                            if _.rect.right <= 750:
+                                                if _.rect.y <= i.rect.bottom and _.rect.bottom >= i.rect.y + 20 and _.rect.right >= i.rect.x + 20 and _.rect.x <= i.rect.right - 20:
+                                                    _.rect.x += 5
+                                            else:
+                                                self.rect.x -= 5
+                                                i.rect.x -= 5
+                                    if i.rect.right >= 750:
+                                        self.rect.x -= 5
+                                        i.rect.x -= 5
+                        else:
+                            flip = 0
+                            FLIP = 0
+                            Flip = False
                     if keys[pygame.K_UP] and self.rect.y >= 50:
                         self.rect.y -= 5
                         up = 5
@@ -259,7 +265,8 @@ while not STOP:
                     player_img = pygame.transform.rotate(player_img, -15)
                     Flip = True
                     self.__init__(self.rect.centerx, self.rect.centery)
-                if not keys[pygame.K_LEFT] and not keys[pygame.K_RIGHT]:
+                if (not keys[pygame.K_LEFT] and not keys[pygame.K_RIGHT]) or (keys[pygame.K_LEFT] and keys[pygame.K_RIGHT]):
+                    Flip = False
                     player_img = pygame.image.load(os.path.join(img_folder, 'pl-1.png')).convert()
                     self.__init__(self.rect.centerx, self.rect.centery)
 
