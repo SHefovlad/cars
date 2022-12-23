@@ -1,4 +1,4 @@
-import pygame, os, random, time
+import pygame, os, random
 
 outro = False
 STOP = False
@@ -28,6 +28,7 @@ while not STOP:
     road_img = pygame.image.load(os.path.join(img_folder, 'rd-1.png')).convert()
     oil_img = pygame.image.load(os.path.join(img_folder, 'oi-1.png')).convert()
     bot_img = pygame.image.load(os.path.join(img_folder, 'bt-1.png')).convert()
+    cop_img = pygame.image.load(os.path.join(img_folder, 'pc-1.png')).convert()
     key_img = pygame.image.load(os.path.join(img_folder, 'ky-1.png')).convert()
     key_img.set_colorkey(CK)
 
@@ -109,6 +110,9 @@ while not STOP:
     smc = 1
     smd = 0
     ty = [0, 0, 0, 0, 0, 0, 0, 0]
+    dodge = False
+    direction = 0
+    band_list = []
 
     class Road(pygame.sprite.Sprite):
         def __init__(self, x, y):
@@ -279,12 +283,23 @@ while not STOP:
             self.rect.center = (x, y)
 
         def update(self):
-            global i, hp, r, DMG, _, stop, push, shake
+            global i, hp, r, DMG, _, stop, push, shake, band_list
             if not pause and not menu:
+                print(band_list)
+                band_list = []
                 push /= 1.03
                 if push <= 1.5:
                     push = 0
                 for i in bots:
+                    if i.rect.x >= 639:
+                        band_list.append(3)
+                    elif i.rect.x >= 508:
+                        band_list.append(2)
+                    elif i.rect.x >= 378:
+                        band_list.append(1)
+                    elif i.rect.right >= 0:
+                        band_list.append(0)
+                    
                     if i.rect.y >= 800:
                         i.rect.y = -100
                         r = random.randint(0, 3)
@@ -350,6 +365,27 @@ while not STOP:
                 oil_img = pygame.transform.scale(oil_img, (scal, scal))
                 self.__init__(self.rect.centerx, self.rect.centery)
 
+    class Cop(pygame.sprite.Sprite):
+        def __init__(self, x, y):
+            pygame.sprite.Sprite.__init__(self)
+            self.image = cop_img
+            self.image.set_colorkey(CK)
+            self.rect = self.image.get_rect()
+            self.rect.center = (x, y)
+        
+        def update(self):
+            global dodge
+            dodge = False
+            if self.rect.y >= player.rect.y + 30:
+                self.rect.y -= 5
+            elif self.rect.bottom <= player.rect.bottom - 30:
+                self.rect.y += 5
+
+            for i in bots:
+                if self.rect.x <= i.rect.right and self.rect.right >= i.rect.x:
+                    dodge = True
+            if dodge:
+                self.rect.x -= 5
 
     font_type = pygame.font.Font('Teletactile.ttf', 20)
     text = font_type.render((str("Points: ") + str(points)), True, (0, 0, 0))
@@ -357,6 +393,7 @@ while not STOP:
     road = Road(500, 0)
     oil = Oil(500, 1000)
     player = Player(500, 700)
+    cop = Cop(700, 1100)
     bot1 = Bot(300, -400)
     bot2 = Bot(440, -250)
     bot3 = Bot(580, -300)
@@ -365,6 +402,7 @@ while not STOP:
     all_sprites.add(road)
     all_sprites.add(oil)
     all_sprites.add(player)
+    all_sprites.add(cop)
     all_sprites.add(bot1, bot2, bot3, bot4)
 
     bots = [bot1, bot2, bot3, bot4]
