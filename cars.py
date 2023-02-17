@@ -113,6 +113,12 @@ while not STOP:
     dodge = False
     direction = 0
     band_list = []
+    free_band = []
+    cop_band = 0
+    dodge_ = 0
+    CoPdOwN = False
+    CoPdOwNN = 4
+    cop_stun = 0
 
     class Road(pygame.sprite.Sprite):
         def __init__(self, x, y):
@@ -285,7 +291,6 @@ while not STOP:
         def update(self):
             global i, hp, r, DMG, _, stop, push, shake, band_list
             if not pause and not menu:
-                print(band_list)
                 band_list = []
                 push /= 1.03
                 if push <= 1.5:
@@ -311,6 +316,7 @@ while not STOP:
                             i.rect.centerx = 580
                         elif r == 3:
                             i.rect.centerx = 700
+
                     if i.rect.y <= player.rect.bottom and i.rect.bottom >= player.rect.y and i.rect.right >= player.rect.x + 10 and i.rect.x <= player.rect.right - 10:
                         DMG += 1
                     if i.rect.y <= player.rect.y + 10 and i.rect.bottom >= player.rect.y + 10 and i.rect.right >= player.rect.x + 20 and i.rect.x <= player.rect.right - 20:
@@ -374,18 +380,89 @@ while not STOP:
             self.rect.center = (x, y)
         
         def update(self):
-            global dodge
-            dodge = False
-            if self.rect.y >= player.rect.y + 30:
-                self.rect.y -= 5
-            elif self.rect.bottom <= player.rect.bottom - 30:
-                self.rect.y += 5
+            global dodge, dodge_, cop_band, free_band, CoPdOwN, CoPdOwNN, cop_stun
+            if not menu:
+                dodge = False
 
-            for i in bots:
-                if self.rect.x <= i.rect.right and self.rect.right >= i.rect.x:
-                    dodge = True
-            if dodge:
-                self.rect.x -= 5
+                if self.rect.x >= 639:
+                    cop_band = 3
+                elif self.rect.x >= 508:
+                    cop_band = 2
+                elif self.rect.x >= 378:
+                    cop_band = 1
+                elif self.rect.right >= 0:
+                    cop_band = 0
+
+                free_band = [0, 1, 2, 3]
+                for i in band_list:
+                    for _ in free_band:
+                        if _ == i:
+                            free_band.remove(i)
+                CoPdOwNN = 4
+                for i in bots:
+                    if i.rect.y <= cop.rect.bottom and i.rect.bottom >= cop.rect.y and i.rect.right >= cop.rect.x + 10 and i.rect.x <= cop.rect.right - 10:
+                        self.rect.y += 4
+                        CoPdOwN = True
+                    else: CoPdOwNN -= 1
+                if CoPdOwNN == 0: CoPdOwN = False
+                
+                if oil.rect.y <= cop.rect.bottom and oil.rect.bottom >= cop.rect.y and oil.rect.right >= cop.rect.x + 10 and oil.rect.x <= cop.rect.right - 10:
+                    self.rect.y += 11
+                    CoPdOwN = True
+                if cop.rect.right <= player.rect.x and cop.rect.x >= 250 and push > 0:
+                    cop.rect.x -= push * 10
+                    cop_stun = 120
+                elif cop.rect.x >= player.rect.right and cop.rect.right <= 660 and push > 0:
+                    cop.rect.x += push * 10
+                    cop_stun = 120
+                if cop.rect.bottom <= player.rect.y and push > 0:
+                    cop.rect.y -= push * 10
+                    cop_stun = 120
+                elif cop.rect.y >= player.rect.bottom and push > 0:
+                    cop.rect.y += push * 10
+                    cop_stun = 120
+
+                cop_stun -= 1
+
+                if free_band != []:
+                    for i in free_band:
+                        if cop_band == i:
+                            dodge_ = 0
+                            break
+                        elif cop_band - i < 0:
+                            dodge_ = 1
+                        elif cop_band - i > 0:
+                            dodge_ = -1
+                else: dodge_ = 0
+            
+                if cop_stun <= 0:
+                    self.rect.x += 10 * dodge_
+                    if not CoPdOwN:
+                        if self.rect.y >= 400:
+                            self.rect.y -= 5
+
+                    if dodge_ == 0:
+                        if cop_band == 0 and (self.rect.centerx <= 310 or self.rect.centerx >= 320):
+                            if self.rect.centerx <= 310:
+                                self.rect.x += 5
+                            if self.rect.centerx >= 320:
+                                self.rect.x -= 5
+                        if cop_band == 1 and (self.rect.centerx <= 440 or self.rect.centerx >= 450):
+                            if self.rect.centerx <= 440:
+                                self.rect.x += 5
+                            if self.rect.centerx >= 450:
+                                self.rect.x -= 5
+                        if cop_band == 2 and (self.rect.centerx <= 570 or self.rect.centerx >= 580):
+                            if self.rect.centerx <= 570:
+                                self.rect.x += 5
+                            if self.rect.centerx >= 580:
+                                self.rect.x -= 5
+                        if cop_band == 3 and (self.rect.centerx <= 690 or self.rect.centerx >= 700):
+                            if self.rect.centerx <= 690:
+                                self.rect.x += 5
+                            if self.rect.centerx >= 700:
+                                self.rect.x -= 5
+                        
 
     font_type = pygame.font.Font('Teletactile.ttf', 20)
     text = font_type.render((str("Points: ") + str(points)), True, (0, 0, 0))
@@ -393,7 +470,7 @@ while not STOP:
     road = Road(500, 0)
     oil = Oil(500, 1000)
     player = Player(500, 700)
-    cop = Cop(700, 1100)
+    cop = Cop(550, 1100)
     bot1 = Bot(300, -400)
     bot2 = Bot(440, -250)
     bot3 = Bot(580, -300)
