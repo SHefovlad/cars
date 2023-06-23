@@ -40,25 +40,7 @@ while not STOP:
     sm_12_img.set_colorkey(CK)
     sm_13_img.set_colorkey(CK)
     sm_14_img.set_colorkey(CK)
-    """
-    sm_21_img = pygame.image.load(os.path.join(img_folder, 'sm-21.png')).convert()
-    sm_22_img = pygame.image.load(os.path.join(img_folder, 'sm-22.png')).convert()
-    sm_23_img = pygame.image.load(os.path.join(img_folder, 'sm-23.png')).convert()
-    sm_24_img = pygame.image.load(os.path.join(img_folder, 'sm-24.png')).convert()
-    sm_21_img.set_colorkey(CK)
-    sm_22_img.set_colorkey(CK)
-    sm_23_img.set_colorkey(CK)
-    sm_24_img.set_colorkey(CK)
 
-    sm_31_img = pygame.image.load(os.path.join(img_folder, 'sm-31.png')).convert()
-    sm_32_img = pygame.image.load(os.path.join(img_folder, 'sm-32.png')).convert()
-    sm_33_img = pygame.image.load(os.path.join(img_folder, 'sm-33.png')).convert()
-    sm_34_img = pygame.image.load(os.path.join(img_folder, 'sm-34.png')).convert()
-    sm_31_img.set_colorkey(CK)
-    sm_32_img.set_colorkey(CK)
-    sm_33_img.set_colorkey(CK)
-    sm_34_img.set_colorkey(CK)
-    """
     ps_1_img = pygame.image.load(os.path.join(img_folder, 'ps-1.png')).convert()
     ps_11_img = pygame.image.load(os.path.join(img_folder, 'ps-11.png')).convert()
     ps_2_img = pygame.image.load(os.path.join(img_folder, 'ps-2.png')).convert()
@@ -119,6 +101,9 @@ while not STOP:
     CoPdOwN = False
     CoPdOwNN = 4
     cop_stun = 0
+    cop_flip = False
+    cop_to_plus = False
+    cop_to_minus = False
 
     class Road(pygame.sprite.Sprite):
         def __init__(self, x, y):
@@ -380,9 +365,11 @@ while not STOP:
             self.rect.center = (x, y)
         
         def update(self):
-            global dodge, dodge_, cop_band, free_band, CoPdOwN, CoPdOwNN, cop_stun
+            global dodge, dodge_, cop_band, free_band, CoPdOwN, CoPdOwNN, cop_stun, cop_img, cop_flip, cop_to_plus, cop_to_minus, shake
             if not menu:
                 dodge = False
+                cop_to_plus = False
+                cop_to_minus = False
 
                 if self.rect.x >= 639:
                     cop_band = 3
@@ -401,13 +388,12 @@ while not STOP:
                 CoPdOwNN = 4
                 for i in bots:
                     if i.rect.y <= cop.rect.bottom and i.rect.bottom >= cop.rect.y and i.rect.right >= cop.rect.x + 10 and i.rect.x <= cop.rect.right - 10:
-                        self.rect.y += 4
                         CoPdOwN = True
                     else: CoPdOwNN -= 1
-                if CoPdOwNN == 0: CoPdOwN = False
+                if CoPdOwNN == 0 and self.rect.y >= 900: CoPdOwN = False
                 
                 if oil.rect.y <= cop.rect.bottom and oil.rect.bottom >= cop.rect.y and oil.rect.right >= cop.rect.x + 10 and oil.rect.x <= cop.rect.right - 10:
-                    self.rect.y += 11
+                    self.rect.y += 7
                     CoPdOwN = True
                 if cop.rect.right <= player.rect.x and cop.rect.x >= 250 and push > 0:
                     cop.rect.x -= push * 10
@@ -422,7 +408,19 @@ while not STOP:
                     cop.rect.y += push * 10
                     cop_stun = 120
 
+                if CoPdOwN and not cop_flip:
+                    cop_img = pygame.image.load(os.path.join(img_folder, 'pc-2.png')).convert()
+                    self.__init__(self.rect.centerx, self.rect.centery)
+                    cop_flip = True
+                elif not CoPdOwN:
+                    cop_img = pygame.image.load(os.path.join(img_folder, 'pc-1.png')).convert()
+                    self.__init__(self.rect.centerx, self.rect.centery)
+                    cop_flip = False
+
                 cop_stun -= 1
+
+                if CoPdOwN and self.rect.y >= 800:
+                    self.rect.y = 3000
 
                 if free_band != []:
                     for i in free_band:
@@ -436,7 +434,8 @@ while not STOP:
                 else: dodge_ = 0
             
                 if cop_stun <= 0:
-                    self.rect.x += 10 * dodge_
+                    if not CoPdOwN:
+                        self.rect.x += 10 * dodge_
                     if not CoPdOwN:
                         if self.rect.y >= 400:
                             self.rect.y -= 5
@@ -444,31 +443,47 @@ while not STOP:
                     if dodge_ == 0:
                         if cop_band == 0 and (self.rect.centerx <= 310 or self.rect.centerx >= 320):
                             if self.rect.centerx <= 310:
-                                self.rect.x += 5
+                                cop_to_plus = True
                             if self.rect.centerx >= 320:
-                                self.rect.x -= 5
+                                cop_to_minus = True
                         if cop_band == 1 and (self.rect.centerx <= 440 or self.rect.centerx >= 450):
                             if self.rect.centerx <= 440:
-                                self.rect.x += 5
+                                cop_to_plus = True
                             if self.rect.centerx >= 450:
-                                self.rect.x -= 5
+                                cop_to_minus = True
                         if cop_band == 2 and (self.rect.centerx <= 570 or self.rect.centerx >= 580):
                             if self.rect.centerx <= 570:
-                                self.rect.x += 5
+                                cop_to_plus = True
                             if self.rect.centerx >= 580:
-                                self.rect.x -= 5
+                                cop_to_minus = True
                         if cop_band == 3 and (self.rect.centerx <= 690 or self.rect.centerx >= 700):
                             if self.rect.centerx <= 690:
-                                self.rect.x += 5
+                                cop_to_plus = True
                             if self.rect.centerx >= 700:
+                                cop_to_minus = True
+                    
+                    if CoPdOwN:
+                        self.rect.y += 4
+
+                    if cop_to_plus and not CoPdOwN:
+                        self.rect.x += 5
+                        for i in bots:
+                            if i.rect.y <= cop.rect.bottom and i.rect.bottom >= cop.rect.y and i.rect.right >= cop.rect.x + 10 and i.rect.x <= cop.rect.right - 10:
                                 self.rect.x -= 5
-                        
+                                shake += 1
+                    elif cop_to_minus and not CoPdOwN:
+                        self.rect.x -= 5
+                        for i in bots:
+                            if i.rect.y <= cop.rect.bottom and i.rect.bottom >= cop.rect.y and i.rect.right >= cop.rect.x + 10 and i.rect.x <= cop.rect.right - 10:
+                                self.rect.x += 5
+                                shake += 1
+
 
     font_type = pygame.font.Font('Teletactile.ttf', 20)
     text = font_type.render((str("Points: ") + str(points)), True, (0, 0, 0))
 
     road = Road(500, 0)
-    oil = Oil(500, 1000)
+    oil = Oil(500, 10000)
     player = Player(500, 700)
     cop = Cop(550, 1100)
     bot1 = Bot(300, -400)
