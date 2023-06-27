@@ -28,7 +28,9 @@ while not STOP:
     road_img = pygame.image.load(os.path.join(img_folder, 'rd-1.png')).convert()
     oil_img = pygame.image.load(os.path.join(img_folder, 'oi-1.png')).convert()
     bot_img = pygame.image.load(os.path.join(img_folder, 'bt-1.png')).convert()
-    cop_img = pygame.image.load(os.path.join(img_folder, 'pc-1.png')).convert()
+    cop_nr_img = pygame.image.load(os.path.join(img_folder, 'pc-1.png')).convert()
+    cop_cr_img = pygame.image.load(os.path.join(img_folder, 'pc-2.png')).convert()
+    cop_img = cop_nr_img
     key_img = pygame.image.load(os.path.join(img_folder, 'ky-1.png')).convert()
     key_img.set_colorkey(CK)
 
@@ -104,6 +106,7 @@ while not STOP:
     cop_flip = False
     cop_to_plus = False
     cop_to_minus = False
+    cop_stop = False
 
     class Road(pygame.sprite.Sprite):
         def __init__(self, x, y):
@@ -128,7 +131,7 @@ while not STOP:
             self.rect.center = (x, y)
 
         def update(self):
-            global keys, Flip, player_img, flip, hp, up, down, left, right, i, UP, DOWN, RIGHT, LEFT, push, resW, resS, scal, oil_img, shake, FLIP
+            global keys, Flip, player_img, flip, hp, up, down, left, right, i, UP, DOWN, RIGHT, LEFT, push, resW, resS, scal, oil_img, shake, FLIP, cop_stop
             keys = pygame.key.get_pressed()
             if not pause and not menu:
                 flip = 0
@@ -165,6 +168,13 @@ while not STOP:
                                 flip = 1
                             self.rect.x -= 5
                             left = 5
+                            if cop.rect.y <= self.rect.bottom and cop.rect.bottom >= self.rect.y + 20 and cop.rect.right >= self.rect.x + 15 + ((cop.rect.y - self.rect.y) / 4) and cop.rect.x <= self.rect.right - 50:
+                                self.rect.x += 3
+                                cop.rect.x -= 2
+                                left = 0
+                                cop_stop = True
+                                shake += 2
+                            else: cop_stop = False
                             for i in bots:
                                 if i.rect.y <= self.rect.bottom and i.rect.bottom >= self.rect.y + 20 and i.rect.right >= self.rect.x + 15 + ((i.rect.y - self.rect.y) / 4) and i.rect.x <= self.rect.right - 50:
                                     i.rect.x -= 2
@@ -187,6 +197,13 @@ while not STOP:
                                 flip = -1
                             self.rect.x += 5
                             right = 5
+                            if cop.rect.y <= self.rect.bottom and cop.rect.bottom >= self.rect.y + 20 and cop.rect.right >= self.rect.x + 50 and cop.rect.x <= self.rect.right - 15 - ((cop.rect.y - self.rect.y) / 4):
+                                self.rect.x -= 3
+                                cop.rect.x += 2
+                                right = 0
+                                cop_stop = True
+                                shake += 2
+                            else: cop_stop = False
                             for i in bots:
                                 if i.rect.y <= self.rect.bottom and i.rect.bottom >= self.rect.y + 20 and i.rect.right >= self.rect.x + 50 and i.rect.x <= self.rect.right - 15 - ((i.rect.y - self.rect.y) / 4):
                                     i.rect.x += 2
@@ -210,6 +227,11 @@ while not STOP:
                     if keys[pygame.K_UP] and self.rect.y >= 50:
                         self.rect.y -= 5
                         up = 5
+                        if cop.rect.y <= self.rect.bottom and cop.rect.bottom >= self.rect.y + 10 and cop.rect.right >= self.rect.x + 20 and cop.rect.x <= self.rect.right - 20:
+                            shake += 2
+                            if not CoPdOwN:
+                                cop.rect.y -= 2
+                                self.rect.y += 3
                         for i in bots:
                             if i.rect.y <= self.rect.bottom and i.rect.bottom >= self.rect.y + 10 and i.rect.right >= self.rect.x + 20 and i.rect.x <= self.rect.right - 20:
                                 i.rect.y -= 2
@@ -217,6 +239,11 @@ while not STOP:
                     if keys[pygame.K_DOWN] and self.rect.bottom <= 700:
                         self.rect.y += 5
                         down = 5
+                        if cop.rect.y <= self.rect.bottom and cop.rect.bottom >= self.rect.y + 10 and cop.rect.right >= self.rect.x + 20 and cop.rect.x <= self.rect.right - 20:
+                            shake += 2
+                            if not CoPdOwN:
+                                cop.rect.y += 2
+                                self.rect.y -= 3
                         for i in bots:
                             if i.rect.y <= self.rect.bottom and i.rect.bottom >= self.rect.y + 10 and i.rect.right >= self.rect.x + 20 and i.rect.x <= self.rect.right - 20:
                                 i.rect.y += 2
@@ -409,11 +436,11 @@ while not STOP:
                     cop_stun = 120
 
                 if CoPdOwN and not cop_flip:
-                    cop_img = pygame.image.load(os.path.join(img_folder, 'pc-2.png')).convert()
+                    cop_img = cop_cr_img
                     self.__init__(self.rect.centerx, self.rect.centery)
                     cop_flip = True
                 elif not CoPdOwN:
-                    cop_img = pygame.image.load(os.path.join(img_folder, 'pc-1.png')).convert()
+                    cop_img = cop_nr_img
                     self.__init__(self.rect.centerx, self.rect.centery)
                     cop_flip = False
 
@@ -434,7 +461,7 @@ while not STOP:
                 else: dodge_ = 0
             
                 if cop_stun <= 0:
-                    if not CoPdOwN:
+                    if not CoPdOwN and not (player.rect.y <= cop.rect.bottom and player.rect.bottom >= cop.rect.y and player.rect.right >= cop.rect.x + 10 and player.rect.x <= cop.rect.right - 10) and not cop_stop:
                         self.rect.x += 10 * dodge_
                     if not CoPdOwN:
                         if self.rect.y >= 400:
@@ -464,19 +491,30 @@ while not STOP:
                     
                     if CoPdOwN:
                         self.rect.y += 4
+                        if cop.rect.y <= self.rect.bottom and cop.rect.bottom >= self.rect.y + 10 and cop.rect.right >= self.rect.x + 50 and cop.rect.x <= self.rect.right - 50:
+                            player.rect.y += 4
 
-                    if cop_to_plus and not CoPdOwN:
-                        self.rect.x += 5
-                        for i in bots:
-                            if i.rect.y <= cop.rect.bottom and i.rect.bottom >= cop.rect.y and i.rect.right >= cop.rect.x + 10 and i.rect.x <= cop.rect.right - 10:
-                                self.rect.x -= 5
-                                shake += 1
-                    elif cop_to_minus and not CoPdOwN:
-                        self.rect.x -= 5
-                        for i in bots:
-                            if i.rect.y <= cop.rect.bottom and i.rect.bottom >= cop.rect.y and i.rect.right >= cop.rect.x + 10 and i.rect.x <= cop.rect.right - 10:
-                                self.rect.x += 5
-                                shake += 1
+                    if not CoPdOwN and not cop_stop:
+                        if cop_to_plus:
+                            self.rect.x += 5
+                            if player.rect.y <= cop.rect.bottom and player.rect.bottom >= cop.rect.y and player.rect.right >= cop.rect.x + 10 and player.rect.x <= cop.rect.right - 10:
+                                self.rect.x -= 3
+                                player.rect.x += 2
+                                shake += 2
+                            for i in bots:
+                                if i.rect.y <= cop.rect.bottom and i.rect.bottom >= cop.rect.y and i.rect.right >= cop.rect.x + 10 and i.rect.x <= cop.rect.right - 10:
+                                    self.rect.x -= 5
+                                    shake += 1
+                        elif cop_to_minus:
+                            self.rect.x -= 5
+                            if player.rect.y <= cop.rect.bottom and player.rect.bottom >= cop.rect.y and player.rect.right >= cop.rect.x + 10 and player.rect.x <= cop.rect.right - 10:
+                                self.rect.x += 3
+                                player.rect.x -= 2
+                                shake += 2
+                            for i in bots:
+                                if i.rect.y <= cop.rect.bottom and i.rect.bottom >= cop.rect.y and i.rect.right >= cop.rect.x + 10 and i.rect.x <= cop.rect.right - 10:
+                                    self.rect.x += 5
+                                    shake += 1
 
 
     font_type = pygame.font.Font('Teletactile.ttf', 20)
@@ -484,7 +522,7 @@ while not STOP:
 
     road = Road(500, 0)
     oil = Oil(500, 10000)
-    player = Player(500, 700)
+    player = Player(508, 700)
     cop = Cop(550, 1100)
     bot1 = Bot(300, -400)
     bot2 = Bot(440, -250)
@@ -500,8 +538,6 @@ while not STOP:
     bots = [bot1, bot2, bot3, bot4]
 
     sm1 = [sm_11_img, sm_12_img, sm_13_img, sm_14_img]
-    #sm2 = [sm_21_img, sm_22_img, sm_23_img, sm_24_img]
-    #sm3 = [sm_31_img, sm_32_img, sm_33_img, sm_34_img]
 
     textW = font_type.render((str("W")), True, (0, 0, 0))
     textS = font_type.render((str("S")), True, (0, 0, 0))
