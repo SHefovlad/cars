@@ -156,6 +156,10 @@ while not STOP:
                 if oil.rect.right >= 800:
                     oil.rect.right = 800
 
+                if self.rect.y >= 800:
+                    self.rect.y = 300
+                    self.rect.centerx = 508
+                    hp -= 5
                 if self.rect.x <= 200:
                     self.rect.x += 1
                 if self.rect.right >= 800:
@@ -174,6 +178,13 @@ while not STOP:
                                 left = 0
                                 cop_stop = True
                                 shake += 2
+                                for _ in bots:
+                                    if _.rect.right <= 750:
+                                        if _.rect.y <= cop.rect.bottom and _.rect.bottom >= cop.rect.y + 20 and _.rect.right >= cop.rect.x + 20 and _.rect.x <= cop.rect.right - 20:
+                                            _.rect.x -= 5
+                                    else:
+                                        self.rect.x += 5
+                                        cop.rect.x += 5
                             else: cop_stop = False
                             for i in bots:
                                 if i.rect.y <= self.rect.bottom and i.rect.bottom >= self.rect.y + 20 and i.rect.right >= self.rect.x + 15 + ((i.rect.y - self.rect.y) / 4) and i.rect.x <= self.rect.right - 50:
@@ -203,6 +214,13 @@ while not STOP:
                                 right = 0
                                 cop_stop = True
                                 shake += 2
+                                for _ in bots:
+                                    if _.rect.right <= 750:
+                                        if _.rect.y <= cop.rect.bottom and _.rect.bottom >= cop.rect.y + 20 and _.rect.right >= cop.rect.x + 20 and _.rect.x <= cop.rect.right - 20:
+                                            _.rect.x += 5
+                                    else:
+                                        self.rect.x -= 5
+                                        cop.rect.x -= 5
                             else: cop_stop = False
                             for i in bots:
                                 if i.rect.y <= self.rect.bottom and i.rect.bottom >= self.rect.y + 20 and i.rect.right >= self.rect.x + 50 and i.rect.x <= self.rect.right - 15 - ((i.rect.y - self.rect.y) / 4):
@@ -230,8 +248,12 @@ while not STOP:
                         if cop.rect.y <= self.rect.bottom and cop.rect.bottom >= self.rect.y + 10 and cop.rect.right >= self.rect.x + 20 and cop.rect.x <= self.rect.right - 20:
                             shake += 2
                             if not CoPdOwN:
+                                up = 0
                                 cop.rect.y -= 2
                                 self.rect.y += 3
+                            else:
+                                up = 0
+                                self.rect.y += 5
                         for i in bots:
                             if i.rect.y <= self.rect.bottom and i.rect.bottom >= self.rect.y + 10 and i.rect.right >= self.rect.x + 20 and i.rect.x <= self.rect.right - 20:
                                 i.rect.y -= 2
@@ -242,6 +264,7 @@ while not STOP:
                         if cop.rect.y <= self.rect.bottom and cop.rect.bottom >= self.rect.y + 10 and cop.rect.right >= self.rect.x + 20 and cop.rect.x <= self.rect.right - 20:
                             shake += 2
                             if not CoPdOwN:
+                                down = 0
                                 cop.rect.y += 2
                                 self.rect.y -= 3
                         for i in bots:
@@ -392,8 +415,8 @@ while not STOP:
             self.rect.center = (x, y)
         
         def update(self):
-            global dodge, dodge_, cop_band, free_band, CoPdOwN, CoPdOwNN, cop_stun, cop_img, cop_flip, cop_to_plus, cop_to_minus, shake
-            if not menu:
+            global dodge, dodge_, cop_band, free_band, CoPdOwN, CoPdOwNN, cop_stun, cop_img, cop_flip, cop_to_plus, cop_to_minus, shake, hp
+            if not pause and not menu:
                 dodge = False
                 cop_to_plus = False
                 cop_to_minus = False
@@ -439,6 +462,7 @@ while not STOP:
                     cop_img = cop_cr_img
                     self.__init__(self.rect.centerx, self.rect.centery)
                     cop_flip = True
+                    shake += 5
                 elif not CoPdOwN:
                     cop_img = cop_nr_img
                     self.__init__(self.rect.centerx, self.rect.centery)
@@ -464,7 +488,7 @@ while not STOP:
                     if not CoPdOwN and not (player.rect.y <= cop.rect.bottom and player.rect.bottom >= cop.rect.y and player.rect.right >= cop.rect.x + 10 and player.rect.x <= cop.rect.right - 10) and not cop_stop:
                         self.rect.x += 10 * dodge_
                     if not CoPdOwN:
-                        if self.rect.y >= 400:
+                        if self.rect.y >= 400 and not (player.rect.y <= self.rect.bottom and player.rect.bottom >= self.rect.y - 35 and player.rect.right >= self.rect.x + 25 and player.rect.x <= self.rect.right - 25):
                             self.rect.y -= 5
 
                     if dodge_ == 0:
@@ -491,8 +515,9 @@ while not STOP:
                     
                     if CoPdOwN:
                         self.rect.y += 4
-                        if cop.rect.y <= self.rect.bottom and cop.rect.bottom >= self.rect.y + 10 and cop.rect.right >= self.rect.x + 50 and cop.rect.x <= self.rect.right - 50:
+                        if player.rect.y <= self.rect.bottom and player.rect.bottom >= self.rect.y + 10 and player.rect.right >= self.rect.x + 25 and player.rect.x <= self.rect.right - 25:
                             player.rect.y += 4
+                            hp -= 0.1
 
                     if not CoPdOwN and not cop_stop:
                         if cop_to_plus:
