@@ -23,6 +23,9 @@ while not STOP:
     ou_r = 0
     ou = 0
     screen.fill(BLUE)
+    DataFile = open("data.txt", "r")
+    record = int(DataFile.read())
+    DataFile.close()
 
     player_img = pygame.image.load(os.path.join(img_folder, 'pl-1.png')).convert()
     road_img = pygame.image.load(os.path.join(img_folder, 'rd-1.png')).convert()
@@ -113,7 +116,6 @@ while not STOP:
     bot_spawn = True
     cop_attack = False
     at_c = 0
-    record = 0
     ATTACK = "central"
     cenAt_c = 0
     cenAt_d = 0
@@ -166,13 +168,13 @@ while not STOP:
                     D = False
                     FPS = 60
                     Spr()
-                if keys[pygame.K_w] and resW >= 1800:
+                if keys[pygame.K_w] and resW >= 1800 and not D:
                     cop_hp -= 5
                     push = 4
                     resW = 0
                     Wrect.width = 10
                     Wrect.height = 10
-                if keys[pygame.K_s] and resS >= 3000:
+                if keys[pygame.K_s] and resS >= 3000 and not D:
                     oil.rect.y = self.rect.y - 120
                     oil.rect.x = self.rect.x - 120
                     resS = 0
@@ -460,7 +462,7 @@ while not STOP:
             self.rect.center = (x, y)
         
         def update(self):
-            global dodge, dodge_, cop_band, free_band, CoPdOwN, CoPdOwNN, cop_stun, cop_img, cop_flip, cop_to_plus, cop_to_minus, shake, hp, cop_attack, bot_spawn, at_c, cenAt_c, cenAt_d, ATTACK, bul_x, bul_y, bul_img, cenAt_x, cenAt_y, cop_hp
+            global points, dodge, dodge_, cop_band, free_band, CoPdOwN, CoPdOwNN, cop_stun, cop_img, cop_flip, cop_to_plus, cop_to_minus, shake, hp, cop_attack, bot_spawn, at_c, cenAt_c, cenAt_d, ATTACK, bul_x, bul_y, bul_img, cenAt_x, cenAt_y, cop_hp
             if not pause and not menu:
                 dodge = False
                 cop_to_plus = False
@@ -669,7 +671,13 @@ while not STOP:
 
                         if cop_hp <= 0:
                             bot_spawn = True
+                            points += 20
                             CoPdOwN = True
+                else:
+                    if self.rect.bottom <= 800:
+                        if random.randint(0, 4000) == 1:
+                            cop_attack = True
+                            cop_hp = 100
 
                 if player.rect.y <= self.rect.bottom and player.rect.bottom >= self.rect.y - 10 and player.rect.right >= self.rect.x and player.rect.x <= self.rect.right and not cop_attack:
                     hp -= 0.05
@@ -684,14 +692,15 @@ while not STOP:
 
         def update(self):
             global ATTACK, hp, shake
-            if player.rect.y <= self.rect.bottom and player.rect.bottom >= self.rect.y and player.rect.right >= self.rect.x + 10 and player.rect.x <= self.rect.right - 10:
-                self.rect.x += bul_x * 100
-                self.rect.y += bul_y * 100
-                hp -= 3
-                shake += 5
-            if ATTACK == "central":
-                self.rect.x += bul_x
-                self.rect.y += bul_y
+            if not pause and not menu:
+                if player.rect.y <= self.rect.bottom and player.rect.bottom >= self.rect.y and player.rect.right >= self.rect.x + 10 and player.rect.x <= self.rect.right - 10:
+                    self.rect.x += bul_x * 100
+                    self.rect.y += bul_y * 100
+                    hp -= 3
+                    shake += 5
+                if ATTACK == "central":
+                    self.rect.x += bul_x
+                    self.rect.y += bul_y
 
 
 
@@ -711,19 +720,6 @@ while not STOP:
     def Spr():
         global all_sprites
         all_sprites = pygame.sprite.Group(road, oil, bullet, player, cop, bot1, bot2, bot3, bot4)
-        '''
-        if road not in all_sprites:
-            all_sprites.add(road)
-        if oil not in all_sprites:
-            all_sprites.add(oil)
-        if bullet not in all_sprites:
-            all_sprites.add(bullet)
-        if player not in all_sprites:
-            all_sprites.add(player)
-        if cop not in all_sprites:
-            all_sprites.add(cop)
-        if (bot1, bot2, bot3, bot4) not in all_sprites:
-            all_sprites.add(bot1, bot2, bot3, bot4)'''
     Spr()
     bots = [bot1, bot2, bot3, bot4]
 
@@ -772,6 +768,11 @@ while not STOP:
         if hp >= 0:
             all_sprites.remove()
             all_sprites.update()
+        else:
+            if points > record:
+                DataFile = open("data.txt", "w")
+                DataFile.write(str(points))
+                DataFile.close()
     #----------------------------------------------------------------#
         Wrect.centerx = player.rect.centerx; Wrect.centery = player.rect.centery
         if not pause:
