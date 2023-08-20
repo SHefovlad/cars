@@ -125,6 +125,9 @@ while not STOP:
     cenAt_y = 400
     cop_hp = 0
     D = False
+    A = 1
+    move_speed = 0
+    resA = 4800
 
     class Road(pygame.sprite.Sprite):
         def __init__(self, x, y):
@@ -135,8 +138,11 @@ while not STOP:
             self.rect.center = (x, y)
 
         def update(self):
+            global move_speed
             if not pause:
-                self.rect.y += 15
+                self.rect.y += 15 + move_speed
+            if not pause and not menu:
+                move_speed += 0.0001
             if self.rect.y >= 0:
                 self.rect.y = -1000
 
@@ -149,7 +155,7 @@ while not STOP:
             self.rect.center = (x, y)
 
         def update(self):
-            global keys, Flip, player_img, flip, hp, up, down, left, right, i, UP, DOWN, RIGHT, LEFT, push, resW, resS, scal, oil_img, shake, FLIP, cop_stop, cop_attack, cop_hp, resD, D, FPS, all_sprites
+            global keys, Flip, player_img, flip, hp, up, down, left, right, i, UP, DOWN, RIGHT, LEFT, push, resW, resS, resA, scal, oil_img, shake, FLIP, cop_stop, cop_attack, cop_hp, resD, D, A, FPS, all_sprites
             keys = pygame.key.get_pressed()
             if not pause and not menu:
                 flip = 0
@@ -159,6 +165,8 @@ while not STOP:
                     resS += 1
                 if resD < 600:
                     resD += 1
+                if resA < 4800:
+                    resA += 1
                 if keys[pygame.K_d] and resD >= 600:
                     resD = 0
                     D = True
@@ -181,6 +189,11 @@ while not STOP:
                     oil_img = pygame.transform.scale(oil_img, (50, 50))
                     oil.__init__(oil.rect.centerx, oil.rect.centery)
                     scal = 50
+                if keys[pygame.K_a] and resA >= 4800 and not D:
+                    A = -1
+                    resA = 0
+                elif resA >= 1000:
+                    A = 1
                 if oil.rect.x <= 200:
                     oil.rect.x = 200
                 if oil.rect.right >= 800:
@@ -365,7 +378,7 @@ while not STOP:
             self.rect.center = (x, y)
 
         def update(self):
-            global i, hp, r, DMG, _, stop, push, shake, band_list, bot_spawn
+            global i, hp, r, DMG, _, stop, push, shake, band_list, bot_spawn, move_speed
             if not pause and not menu:
                 band_list = []
                 push /= 1.03
@@ -410,6 +423,11 @@ while not STOP:
                     if stop > 9:
                         i.rect.y -= 7
                         stop = 0
+                    
+                    if i.rect.y <= -500:
+                        i.rect.x = random.randint(300, 700)
+                        i.rect.y = 2000
+
                     for _ in bots:
                         if _ != i:
                             if not (i.rect.y <= _.rect.bottom and i.rect.bottom >= _.rect.y and i.rect.right >= _.rect.x and i.rect.x <= _.rect.right):
@@ -421,10 +439,10 @@ while not STOP:
                                     i.rect.y -= push
                                 elif i.rect.y >= player.rect.bottom and push > 0:
                                     i.rect.y += push
-                self.rect.y += 4
+                self.rect.y += 4 + move_speed
                 if DMG > 0:
                     shake += 1 / len(bots)
-                    hp -= 0.01
+                    hp -= 0.01 * A
                     DMG = 0
 
     class Oil(pygame.sprite.Sprite):
@@ -438,7 +456,7 @@ while not STOP:
         def update(self):
             global i, e, oil_img, scal
             if not pause and not menu:
-                self.rect.y += 15
+                self.rect.y += 15 + move_speed
                 for i in bots:
                     if i.rect.x <= self.rect.right and i.rect.right >= self.rect.x and i.rect.y <= self.rect.bottom - 170 and i.rect.bottom >= self.rect.y:
                         i.rect.y += 11
@@ -566,10 +584,10 @@ while not STOP:
                                 cop_to_minus = True
                     
                     if CoPdOwN:
-                        self.rect.y += 4
+                        self.rect.y += 4 + move_speed
                         if player.rect.y <= self.rect.bottom and player.rect.bottom >= self.rect.y + 10 and player.rect.right >= self.rect.x + 25 and player.rect.x <= self.rect.right - 25:
                             player.rect.y += 4
-                            hp -= 0.1
+                            hp -= 0.1 * A
 
                     if not CoPdOwN and not cop_stop and not cop_attack:
                         if cop_to_plus:
@@ -581,7 +599,7 @@ while not STOP:
                             for i in bots:
                                 if i.rect.y <= cop.rect.bottom and i.rect.bottom >= cop.rect.y and i.rect.right >= cop.rect.x + 10 and i.rect.x <= cop.rect.right - 10:
                                     self.rect.x -= 5
-                                    shake += 1
+                                    shake += 1  
                         elif cop_to_minus:
                             self.rect.x -= 5
                             if player.rect.y <= cop.rect.bottom and player.rect.bottom >= cop.rect.y and player.rect.right >= cop.rect.x + 10 and player.rect.x <= cop.rect.right - 10:
@@ -601,6 +619,7 @@ while not STOP:
                         cop_attack = False
                         bot_spawn = True
                     else:
+                        cop.rect.y = 600
                         cop_attack = True
                         cop_hp = 100
 
@@ -609,6 +628,7 @@ while not STOP:
                 
                 if cop_hp <= 0 and cop_attack and self.rect.y >= 800:
                     cop_attack = False
+                    points += 20
                     self.rect.y = 10000
 
                 if cop_attack:
@@ -619,7 +639,7 @@ while not STOP:
 
                     if ATTACK == "central":
                         if player.rect.y <= self.rect.bottom and player.rect.bottom >= self.rect.y - 10 and player.rect.right >= self.rect.x and player.rect.x <= self.rect.right and cenAt_c >= 180:
-                            hp -= 0.05
+                            hp -= 0.05 * A
                         if player.rect.y <= self.rect.bottom and player.rect.bottom >= self.rect.y - 10 and player.rect.right >= self.rect.x and player.rect.x <= self.rect.right:
                             cop_hp -= 0.1
 
@@ -666,12 +686,11 @@ while not STOP:
                             bul_img = pygame.image.load(os.path.join(img_folder, 'bl-1.png')).convert()
                             bul_img = pygame.transform.rotate(bul_img, degs - 90)
                             bullet.__init__(self.rect.centerx, self.rect.centery)
-                            bul_x = (player.rect.centerx - cop.rect.centerx) / ((math.sqrt((player.rect.centerx - cop.rect.centerx) ** 2 + (player.rect.centery - cop.rect.centery) ** 2)) / 15)
-                            bul_y = (player.rect.centery - cop.rect.centery) / ((math.sqrt((player.rect.centerx - cop.rect.centerx) ** 2 + (player.rect.centery - cop.rect.centery) ** 2)) / 15)
+                            bul_x = (player.rect.centerx - cop.rect.centerx) / ((math.sqrt((player.rect.centerx - cop.rect.centerx) ** 2 + (player.rect.centery - cop.rect.centery) ** 2)) / 12)
+                            bul_y = (player.rect.centery - cop.rect.centery) / ((math.sqrt((player.rect.centerx - cop.rect.centerx) ** 2 + (player.rect.centery - cop.rect.centery) ** 2)) / 12)
 
                         if cop_hp <= 0:
                             bot_spawn = True
-                            points += 20
                             CoPdOwN = True
                 else:
                     if self.rect.bottom <= 800:
@@ -680,7 +699,7 @@ while not STOP:
                             cop_hp = 100
 
                 if player.rect.y <= self.rect.bottom and player.rect.bottom >= self.rect.y - 10 and player.rect.right >= self.rect.x and player.rect.x <= self.rect.right and not cop_attack:
-                    hp -= 0.05
+                    hp -= 0.05 * A
 
     class Bullet(pygame.sprite.Sprite):
         def __init__(self, x, y):
@@ -728,6 +747,7 @@ while not STOP:
     textW = font_type.render((str("W")), True, (0, 0, 0))
     textD = font_type.render((str("D")), True, (0, 0, 0))
     textS = font_type.render((str("S")), True, (0, 0, 0))
+    textA = font_type.render((str("A")), True, (0, 0, 0))
     Wrect = key_img.get_rect()
     Wrect.width = 3000
     Wrect.height = 3000
@@ -739,6 +759,8 @@ while not STOP:
         clock.tick(FPS)
         cop_at_rect.center = cop.rect.center
         
+        if hp > 100: hp = 100
+
         w = 0
         shake = int(shake)
         if shk_off == 1:
@@ -820,6 +842,12 @@ while not STOP:
             else:
                 pygame.draw.circle(screen, (185, 255, 185), (50, 300), resD / 20)
             screen.blit(textD, (42, 290))
+            pygame.draw.circle(screen, "black", (50, 400), 34)
+            if resA < 4800:
+                pygame.draw.circle(screen, "white", (50, 400), resA / 160)
+            else:
+                pygame.draw.circle(screen, (185, 255, 185), (50, 400), resA / 160)
+            screen.blit(textA, (42, 390))
             if Wrect.width <= 2000:
                 pygame.draw.arc(screen, "white", Wrect, 0, 30, 100)
         else:
