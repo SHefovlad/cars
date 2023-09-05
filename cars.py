@@ -3,7 +3,6 @@ import pygame, os, random, math
 outro = False
 STOP = False
 while not STOP:
-
     WIDTH = 1000
     HEIGHT = 800
     FPS = 60
@@ -35,9 +34,11 @@ while not STOP:
     cop_cr_img = pygame.image.load(os.path.join(img_folder, 'pc-2.png')).convert()
     cop_at_img = pygame.image.load(os.path.join(img_folder, 'pc-3.png')).convert()
     bul_img = pygame.image.load(os.path.join(img_folder, 'bl-1.png')).convert()
+    dron_img = pygame.image.load(os.path.join(img_folder, 'dr-1.png')).convert()
     cop_img = cop_nr_img
     key_img = pygame.image.load(os.path.join(img_folder, 'ky-1.png')).convert()
     key_img.set_colorkey(CK)
+    dron_img.set_colorkey(CK)
 
     sm_11_img = pygame.image.load(os.path.join(img_folder, 'sm-11.png')).convert()
     sm_12_img = pygame.image.load(os.path.join(img_folder, 'sm-12.png')).convert()
@@ -66,6 +67,7 @@ while not STOP:
     ps_41_img.set_colorkey(CK)
 
     key_rect = key_img.get_rect()
+    dron_rect = oil_img.get_rect()
     sm_rect = sm_11_img.get_rect()
     all_sprites = pygame.sprite.Group()
     running = True
@@ -126,8 +128,12 @@ while not STOP:
     cop_hp = 0
     D = False
     A = 1
-    move_speed = 0
+    move_speed = 1
     resA = 4800
+    bot_count = 5
+    bots = []
+    dron_x, dron_y = 0, 0
+    okr_b = 0
 
     class Road(pygame.sprite.Sprite):
         def __init__(self, x, y):
@@ -175,7 +181,7 @@ while not STOP:
                 elif resD >= 100:
                     D = False
                     FPS = 60
-                    Spr()
+                    all_sprites = AS
                 if keys[pygame.K_w] and resW >= 1800 and not D:
                     cop_hp -= 5
                     push = 4
@@ -385,14 +391,15 @@ while not STOP:
                 if push <= 1.5:
                     push = 0
                 for i in bots:
-                    if i.rect.x >= 639:
-                        band_list.append(3)
-                    elif i.rect.x >= 508:
-                        band_list.append(2)
-                    elif i.rect.x >= 378:
-                        band_list.append(1)
-                    elif i.rect.right >= 0:
-                        band_list.append(0)
+                    if i.rect.y < cop.rect.bottom or i.rect.bottom + 60 > cop.rect.y:
+                        if i.rect.x >= 639:
+                            band_list.append(3)
+                        elif i.rect.x >= 508:
+                            band_list.append(2)
+                        elif i.rect.x >= 378:
+                            band_list.append(1)
+                        elif i.rect.right >= 0:
+                            band_list.append(0)
                     
                     if i.rect.y >= 800 and bot_spawn:
                         i.rect.y = random.randint(-400, -100)
@@ -485,7 +492,6 @@ while not STOP:
                 dodge = False
                 cop_to_plus = False
                 cop_to_minus = False
-
                 if self.rect.x >= 639:
                     cop_band = 3
                 elif self.rect.x >= 508:
@@ -500,7 +506,7 @@ while not STOP:
                     for _ in free_band:
                         if _ == i:
                             free_band.remove(i)
-                CoPdOwNN = 4
+                CoPdOwNN = bot_count
                 for i in bots:
                     if i.rect.y <= cop.rect.bottom and i.rect.bottom >= cop.rect.y and i.rect.right >= cop.rect.x + 10 and i.rect.x <= cop.rect.right - 10:
                         CoPdOwN = True
@@ -681,7 +687,7 @@ while not STOP:
                             dx = player.rect.centerx - cop.rect.centerx
                             dy = player.rect.centery - cop.rect.centery
                             rads = math.atan2(-dy,dx)
-                            rads %= 2*math.pi
+                            rads %= 2 * math.pi
                             degs = math.degrees(rads)
                             bul_img = pygame.image.load(os.path.join(img_folder, 'bl-1.png')).convert()
                             bul_img = pygame.transform.rotate(bul_img, degs - 90)
@@ -721,7 +727,22 @@ while not STOP:
                     self.rect.x += bul_x
                     self.rect.y += bul_y
 
-
+    def okr(a = 0, b = 0):
+        angle = okr_b
+        a = 100 * math.cos(angle) + player.rect.centerx - 25
+        b = 100 * math.sin(angle) + player.rect.centery - 25
+        return (a, b)
+    def okrd():
+        global dron_img
+        (s, e) = okr()
+        dx = s - player.rect.centerx
+        dy = e - player.rect.centery
+        rads = math.atan2(-dy, dx)
+        rads %= 2 * math.pi
+        degs = math.degrees(rads)
+        dron_img = pygame.image.load(os.path.join(img_folder, 'dr-1.png')).convert()
+        dron_img.set_colorkey(CK)
+        dron_img = pygame.transform.rotate(dron_img, degs + 90)
 
     font_type = pygame.font.Font('Teletactile.ttf', 20)
     text = font_type.render((str("Points: ") + str(points)), True, (0, 0, 0))
@@ -731,16 +752,13 @@ while not STOP:
     player = Player(508, 700)
     bullet = Bullet(300, 1300)
     cop = Cop(550, 10100)
-    bot1 = Bot(300, -400)
-    bot2 = Bot(440, -250)
-    bot3 = Bot(580, -300)
-    bot4 = Bot(700, -500)
 
-    def Spr():
-        global all_sprites
-        all_sprites = pygame.sprite.Group(road, oil, bullet, player, cop, bot1, bot2, bot3, bot4)
-    Spr()
-    bots = [bot1, bot2, bot3, bot4]
+    all_sprites = pygame.sprite.Group(road, oil, bullet, player, cop)
+    for i in range(0, bot_count):
+        b = Bot(500, random.randint(800, 1000))
+        bots.append(b)
+        all_sprites.add(b)
+    AS = all_sprites
 
     sm1 = [sm_11_img, sm_12_img, sm_13_img, sm_14_img]
 
@@ -797,6 +815,7 @@ while not STOP:
                 DataFile.close()
     #----------------------------------------------------------------#
         Wrect.centerx = player.rect.centerx; Wrect.centery = player.rect.centery
+        okr_b += 0.03
         if not pause:
             Wrect.width += 70
             Wrect.height += 70
@@ -817,6 +836,8 @@ while not STOP:
         if not menu:
             screen.blit(text, (770, 20))
             screen.blit(key_img, (10, 10), key_rect)
+            okrd()
+            if A == -1: screen.blit(dron_img, okr(), dron_rect)
             if cop_attack:
                 pygame.draw.rect(screen, "black", (cop.rect.centerx - 53, cop.rect.y - 26, 106, 16))
                 pygame.draw.rect(screen, "red", (cop.rect.centerx - 50, cop.rect.y - 23, cop_hp, 10))
