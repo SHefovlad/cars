@@ -118,7 +118,7 @@ while not STOP:
     bot_spawn = True
     cop_attack = False
     at_c = 0
-    ATTACK = "central"
+    ATTACK = "side"
     cenAt_c = 0
     cenAt_d = 0
     bul_x = 0
@@ -134,6 +134,8 @@ while not STOP:
     bots = []
     dron_x, dron_y = 0, 0
     okr_b = 0
+    sidAt_s = 0
+    sidAt_c = 0
 
     class Road(pygame.sprite.Sprite):
         def __init__(self, x, y):
@@ -487,7 +489,7 @@ while not STOP:
             self.rect.center = (x, y)
         
         def update(self):
-            global points, dodge, dodge_, cop_band, free_band, CoPdOwN, CoPdOwNN, cop_stun, cop_img, cop_flip, cop_to_plus, cop_to_minus, shake, hp, cop_attack, bot_spawn, at_c, cenAt_c, cenAt_d, ATTACK, bul_x, bul_y, bul_img, cenAt_x, cenAt_y, cop_hp
+            global points, dodge, dodge_, cop_band, free_band, CoPdOwN, CoPdOwNN, cop_stun, cop_img, cop_flip, cop_to_plus, cop_to_minus, shake, hp, cop_attack, bot_spawn, at_c, cenAt_c, cenAt_d, sidAt_s, sidAt_c, ATTACK, bul_x, bul_y, bul_img, cenAt_x, cenAt_y, cop_hp
             if not pause and not menu:
                 dodge = False
                 cop_to_plus = False
@@ -625,7 +627,7 @@ while not STOP:
                         cop_attack = False
                         bot_spawn = True
                     else:
-                        cop.rect.y = 600
+                        cop.rect.y = 800
                         cop_attack = True
                         cop_hp = 100
 
@@ -698,6 +700,39 @@ while not STOP:
                         if cop_hp <= 0:
                             bot_spawn = True
                             CoPdOwN = True
+
+                    if ATTACK == "side":
+                        if self.rect.y > 800 and not CoPdOwN:
+                            self.rect.y -= 10
+                        
+                        if (sidAt_s == 0 or sidAt_s == 2 or sidAt_s == 4) and not CoPdOwN:
+                            self.rect.y -= 7
+                            self.rect.centerx = 310
+                            if sidAt_c >= 30:
+                                bul_img = pygame.image.load(os.path.join(img_folder, 'bl-1.png')).convert()
+                                bul_img = pygame.transform.rotate(bul_img, -90)
+                                bullet.__init__(self.rect.centerx, self.rect.centery)
+                                sidAt_c = 0
+                            sidAt_c += 1
+                            if self.rect.bottom <= 0:
+                                sidAt_s += 1
+                                self.rect.y = 900
+
+                        if (sidAt_s == 1 or sidAt_s == 3 or sidAt_s == 5) and not CoPdOwN:
+                            self.rect.y -= 7
+                            self.rect.centerx = 700
+                            if sidAt_c >= 30:
+                                bul_img = pygame.image.load(os.path.join(img_folder, 'bl-1.png')).convert()
+                                bul_img = pygame.transform.rotate(bul_img, 90)
+                                bullet.__init__(self.rect.centerx, self.rect.centery)
+                                sidAt_c = 0
+                            sidAt_c += 1
+                            if self.rect.bottom <= 0:
+                                sidAt_s += 1
+                                self.rect.y = 900
+                        if cop_hp <= 0:
+                            bot_spawn = True
+                            CoPdOwN = True
                 else:
                     if self.rect.bottom <= 800:
                         if random.randint(0, 4000) == 1:
@@ -719,13 +754,15 @@ while not STOP:
             global ATTACK, hp, shake
             if not pause and not menu:
                 if player.rect.y <= self.rect.bottom and player.rect.bottom >= self.rect.y and player.rect.right >= self.rect.x + 10 and player.rect.x <= self.rect.right - 10:
-                    self.rect.x += bul_x * 100
-                    self.rect.y += bul_y * 100
+                    self.rect.x = -100
+                    self.rect.y = -100
                     hp -= 3
                     shake += 5
                 if ATTACK == "central":
                     self.rect.x += bul_x
                     self.rect.y += bul_y
+                if ATTACK == "side":
+                    self.rect.x += 24 * (1 + -2 * (sidAt_s % 2))
 
     def okr(a = 0, b = 0):
         angle = okr_b
