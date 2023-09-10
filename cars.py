@@ -705,6 +705,9 @@ while not STOP:
                         if self.rect.y > 800 and not CoPdOwN:
                             self.rect.y -= 10
                         
+                        if player.rect.y <= self.rect.bottom and player.rect.bottom >= self.rect.y - 10 and player.rect.right >= self.rect.x and player.rect.x <= self.rect.right:
+                            cop_hp -= 0.1
+                        
                         if (sidAt_s == 0 or sidAt_s == 2 or sidAt_s == 4) and not CoPdOwN:
                             self.rect.y -= 7
                             self.rect.centerx = 310
@@ -717,6 +720,7 @@ while not STOP:
                             if self.rect.bottom <= 0:
                                 sidAt_s += 1
                                 self.rect.y = 900
+                                bullet.rect.y = 1000 
 
                         if (sidAt_s == 1 or sidAt_s == 3 or sidAt_s == 5) and not CoPdOwN:
                             self.rect.y -= 7
@@ -730,7 +734,30 @@ while not STOP:
                             if self.rect.bottom <= 0:
                                 sidAt_s += 1
                                 self.rect.y = 900
+                                bullet.rect.y = 1000 
+
+                        if sidAt_s == 6 and cop_hp > 0:
+                            if self.rect.centerx <= 495 or self.rect.centerx >= 505:
+                                if self.rect.centerx < 500:
+                                    if player.rect.y <= self.rect.bottom and player.rect.bottom >= self.rect.y - 10 and player.rect.right >= self.rect.x and player.rect.x <= self.rect.right:
+                                        player.rect.x += 5
+                                    self.rect.x += 5
+                                if self.rect.centerx > 500:
+                                    if player.rect.y <= self.rect.bottom and player.rect.bottom >= self.rect.y - 10 and player.rect.right >= self.rect.x and player.rect.x <= self.rect.right:
+                                        player.rect.x -= 5
+                                    self.rect.x -= 5
+                            if self.rect.centery <= 295 or self.rect.centery >= 305:
+                                if self.rect.centery < 500:
+                                    if player.rect.y <= self.rect.bottom and player.rect.bottom >= self.rect.y - 10 and player.rect.right >= self.rect.x and player.rect.x <= self.rect.right:
+                                        player.rect.y += 5
+                                    self.rect.y += 5
+                                if self.rect.centery > 500:
+                                    if player.rect.y <= self.rect.bottom and player.rect.bottom >= self.rect.y - 10 and player.rect.right >= self.rect.x and player.rect.x <= self.rect.right:
+                                        player.rect.y -= 5
+                                    self.rect.y -= 5
+
                         if cop_hp <= 0:
+                            sidAt_s = 0
                             bot_spawn = True
                             CoPdOwN = True
                 else:
