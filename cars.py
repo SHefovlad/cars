@@ -35,6 +35,7 @@ while not STOP:
     cop_at_img = pygame.image.load(os.path.join(img_folder, 'pc-3.png')).convert()
     bul_img = pygame.image.load(os.path.join(img_folder, 'bl-1.png')).convert()
     dron_img = pygame.image.load(os.path.join(img_folder, 'dr-1.png')).convert()
+    pit_img = pygame.image.load(os.path.join(img_folder, 'pt-1.png')).convert()
     cop_img = cop_nr_img
     key_img = pygame.image.load(os.path.join(img_folder, 'ky-1.png')).convert()
     key_img.set_colorkey(CK)
@@ -136,6 +137,8 @@ while not STOP:
     okr_b = 0
     sidAt_s = 0
     sidAt_c = 0
+    pit_c = 0
+    pit_pl_x, pit_pl_y = 0, 0
 
     class Road(pygame.sprite.Sprite):
         def __init__(self, x, y):
@@ -702,7 +705,7 @@ while not STOP:
                             CoPdOwN = True
 
                     if ATTACK == "side":
-                        if self.rect.y > 800 and not CoPdOwN:
+                        if self.rect.y > 960 and not CoPdOwN:
                             self.rect.y -= 10
                         
                         if player.rect.y <= self.rect.bottom and player.rect.bottom >= self.rect.y - 10 and player.rect.right >= self.rect.x and player.rect.x <= self.rect.right:
@@ -734,35 +737,44 @@ while not STOP:
                             if self.rect.bottom <= 0:
                                 sidAt_s += 1
                                 self.rect.y = 900
-                                bullet.rect.y = 1000 
+                                bullet.rect.y = 1000
+                                sidAt_c = 0
 
                         if sidAt_s == 6 and cop_hp > 0:
-                            if self.rect.centerx <= 495 or self.rect.centerx >= 505:
-                                if self.rect.centerx < 500:
-                                    if player.rect.y <= self.rect.bottom and player.rect.bottom >= self.rect.y - 10 and player.rect.right >= self.rect.x and player.rect.x <= self.rect.right:
-                                        player.rect.x += 5
-                                    self.rect.x += 5
-                                if self.rect.centerx > 500:
-                                    if player.rect.y <= self.rect.bottom and player.rect.bottom >= self.rect.y - 10 and player.rect.right >= self.rect.x and player.rect.x <= self.rect.right:
-                                        player.rect.x -= 5
-                                    self.rect.x -= 5
-                            if self.rect.centery <= 295 or self.rect.centery >= 305:
-                                if self.rect.centery < 500:
-                                    if player.rect.y <= self.rect.bottom and player.rect.bottom >= self.rect.y - 10 and player.rect.right >= self.rect.x and player.rect.x <= self.rect.right:
-                                        player.rect.y += 5
+                            if sidAt_c < 300:
+                                if self.rect.centerx <= 495 or self.rect.centerx >= 505:
+                                    if self.rect.centerx < 500:
+                                        if player.rect.y <= self.rect.bottom and player.rect.bottom >= self.rect.y - 10 and player.rect.right >= self.rect.x and player.rect.x <= self.rect.right:
+                                            player.rect.x += 5
+                                        self.rect.x += 5
+                                    if self.rect.centerx > 500:
+                                        if player.rect.y <= self.rect.bottom and player.rect.bottom >= self.rect.y - 10 and player.rect.right >= self.rect.x and player.rect.x <= self.rect.right:
+                                            player.rect.x -= 5
+                                        self.rect.x -= 5
+                                if self.rect.centery <= 295 or self.rect.centery >= 305:
+                                    if self.rect.centery < 500:
+                                        if player.rect.y <= self.rect.bottom and player.rect.bottom >= self.rect.y - 10 and player.rect.right >= self.rect.x and player.rect.x <= self.rect.right:
+                                            player.rect.y += 5
+                                        self.rect.y += 5
+                                    if self.rect.centery > 500:
+                                        if player.rect.y <= self.rect.bottom and player.rect.bottom >= self.rect.y - 10 and player.rect.right >= self.rect.x and player.rect.x <= self.rect.right:
+                                            player.rect.y -= 5
+                                        self.rect.y -= 5
+                            else:
+                                if self.rect.y < 950:
                                     self.rect.y += 5
-                                if self.rect.centery > 500:
-                                    if player.rect.y <= self.rect.bottom and player.rect.bottom >= self.rect.y - 10 and player.rect.right >= self.rect.x and player.rect.x <= self.rect.right:
-                                        player.rect.y -= 5
-                                    self.rect.y -= 5
+                                else:
+                                    sidAt_s = 0
+                            sidAt_c += 1
 
                         if cop_hp <= 0:
                             sidAt_s = 0
                             bot_spawn = True
                             CoPdOwN = True
+                
                 else:
                     if self.rect.bottom <= 800:
-                        if random.randint(0, 4000) == 1:
+                        if random.randint(0, 2000) == 1:
                             cop_attack = True
                             cop_hp = 100
 
@@ -791,6 +803,35 @@ while not STOP:
                 if ATTACK == "side":
                     self.rect.x += 24 * (1 + -2 * (sidAt_s % 2))
 
+    class Pit(pygame.sprite.Sprite):
+        def __init__(self, x, y):
+            pygame.sprite.Sprite.__init__(self)
+            self.image = pit_img
+            self.image.set_colorkey(CK)
+            self.rect = self.image.get_rect()
+            self.rect.center = (x, y)
+
+        def update (self):
+            global pit_c, hp, pit_pl_x, pit_pl_y, pit_img
+            if not pause and not menu:
+                if player.rect.x == pit_pl_x and player.rect.y == pit_pl_y:
+                    pit_c += 1
+                    print(pit_c)
+                else:
+                    pit_c = 0
+                    pit_pl_x, pit_pl_y = player.rect.x, player.rect.y
+                if pit_c == 600:
+                    pit_img = pygame.image.load(os.path.join(img_folder, 'pt-1.png')).convert()
+                    pit_img = pygame.transform.rotate(pit_img, random.randint(0, 360))
+                    pit.__init__(player.rect.centerx, -50)
+                if player.rect.y <= self.rect.bottom and player.rect.bottom >= self.rect.y and player.rect.right >= self.rect.x + 10 and player.rect.x <= self.rect.right - 10:
+                    hp -= 5
+                    if player.rect.x <= 600:
+                        player.rect.x += random.randint(0, 20) + 50
+                    else:
+                        player.rect.x -= random.randint(0, 20) + 50
+                self.rect.y += 15 + move_speed
+
     def okr(a = 0, b = 0):
         angle = okr_b
         a = 100 * math.cos(angle) + player.rect.centerx - 25
@@ -816,8 +857,9 @@ while not STOP:
     player = Player(508, 700)
     bullet = Bullet(300, 1300)
     cop = Cop(550, 10100)
+    pit = Pit(0, 1000)
 
-    all_sprites = pygame.sprite.Group(road, oil, bullet, player, cop)
+    all_sprites = pygame.sprite.Group(road, oil, bullet, player, cop, pit)
     for i in range(0, bot_count):
         b = Bot(500, random.randint(800, 1000))
         bots.append(b)
