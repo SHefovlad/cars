@@ -13,7 +13,7 @@ while not STOP:
     BLUE = (0, 130, 255)
     CK = (0, 255, 0)
     pygame.init()
-    pygame.mixer.init()
+    #pygame.mixer.init()
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
     pygame.display.set_caption("cars")
     clock = pygame.time.Clock()
@@ -120,6 +120,7 @@ while not STOP:
     cop_attack = False
     at_c = 0
     ATTACK = "central"
+    attack_list = ["cenrtal", "side"]
     cenAt_c = 0
     cenAt_d = 0
     bul_x = 0
@@ -629,6 +630,9 @@ while not STOP:
                     if cop_attack:
                         cop_attack = False
                         bot_spawn = True
+                        ATTACK = attack_list[random.randint(0, 1)]
+                        for i in bots:
+                            i.rect.y += 1000
                     else:
                         cop.rect.y = 800
                         cop_attack = True
@@ -776,6 +780,7 @@ while not STOP:
                     if self.rect.bottom <= 800:
                         if random.randint(0, 2000) == 1:
                             cop_attack = True
+                            ATTACK = attack_list[random.randint(0, 1)]
                             cop_hp = 100
 
                 if player.rect.y <= self.rect.bottom and player.rect.bottom >= self.rect.y - 10 and player.rect.right >= self.rect.x and player.rect.x <= self.rect.right and not cop_attack:
@@ -790,13 +795,26 @@ while not STOP:
             self.rect.center = (x, y)
 
         def update(self):
-            global ATTACK, hp, shake
+            global ATTACK, hp, shake, left, right, up, down
             if not pause and not menu:
                 if player.rect.y <= self.rect.bottom and player.rect.bottom >= self.rect.y and player.rect.right >= self.rect.x + 10 and player.rect.x <= self.rect.right - 10:
                     self.rect.x = -100
                     self.rect.y = -100
                     hp -= 3
                     shake += 5
+                    if ATTACK == "side":
+                        if sidAt_s == 0 or sidAt_s == 2 or sidAt_s == 4:
+                            right += 10
+                        else: left += 10
+                    if ATTACK == "central":
+                        if bul_x < 0:
+                            left += -1 * bul_x / 2
+                        else:
+                            right += bul_x / 2
+                        if bul_y < 0:
+                            up += -1 * bul_y / 2
+                        else:
+                            down += bul_y / 2
                 if ATTACK == "central":
                     self.rect.x += bul_x
                     self.rect.y += bul_y
@@ -812,7 +830,7 @@ while not STOP:
             self.rect.center = (x, y)
 
         def update (self):
-            global pit_c, hp, pit_pl_x, pit_pl_y, pit_img
+            global pit_c, hp, pit_pl_x, pit_pl_y, pit_img, left, right
             if not pause and not menu:
                 if player.rect.x == pit_pl_x and player.rect.y == pit_pl_y:
                     pit_c += 1
@@ -823,12 +841,13 @@ while not STOP:
                     pit_img = pygame.image.load(os.path.join(img_folder, 'pt-1.png')).convert()
                     pit_img = pygame.transform.rotate(pit_img, random.randint(0, 360))
                     pit.__init__(player.rect.centerx, -50)
-                if player.rect.y <= self.rect.bottom and player.rect.bottom >= self.rect.y and player.rect.right >= self.rect.x + 10 and player.rect.x <= self.rect.right - 10:
+                if player.rect.y <= self.rect.bottom and player.rect.bottom >= self.rect.y and player.rect.right >= self.rect.x + 10 and player.rect.x <= self.rect.right - 10 and pit_c >= 600:
+                    pit_c = 0
                     hp -= 5
                     if player.rect.x <= 600:
-                        player.rect.x += random.randint(0, 20) + 50
+                        right = random.randint(0, 5) + 10
                     else:
-                        player.rect.x -= random.randint(0, 20) + 50
+                        left = random.randint(0, 5) + 10
                 self.rect.y += 15 + move_speed
 
     def okr(a = 0, b = 0):
@@ -858,7 +877,7 @@ while not STOP:
     cop = Cop(550, 10100)
     pit = Pit(0, 1000)
 
-    all_sprites = pygame.sprite.Group(road, oil, bullet, player, cop, pit)
+    all_sprites = pygame.sprite.Group(road, pit, oil, bullet, player, cop)
     for i in range(0, bot_count):
         b = Bot(500, random.randint(800, 1000))
         bots.append(b)
@@ -918,6 +937,7 @@ while not STOP:
                 DataFile = open("data.txt", "w")
                 DataFile.write(str(points))
                 DataFile.close()
+                running = False
     #----------------------------------------------------------------#
         Wrect.centerx = player.rect.centerx; Wrect.centery = player.rect.centery
         okr_b += 0.03
@@ -987,7 +1007,7 @@ while not STOP:
             if smc >= 4:
                 smc = 0
             sm_img = sm1[smc]
-        if hp <= 50:
+        if hp <= 30:
             if FLIP == -1:
                 screen.blit(sm_img, (player.rect.x + 30, player.rect.y), sm_rect)
             else:
