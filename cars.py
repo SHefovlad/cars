@@ -119,7 +119,7 @@ while not STOP:
     bot_spawn = True
     cop_attack = False
     at_c = 0
-    ATTACK = "side"
+    ATTACK = "central"
     cenAt_c = 0
     cenAt_d = 0
     bul_x = 0
@@ -649,42 +649,42 @@ while not STOP:
                             i.rect.y += 2000
 
                     if ATTACK == "central":
-                        if player.rect.y <= self.rect.bottom and player.rect.bottom >= self.rect.y - 10 and player.rect.right >= self.rect.x and player.rect.x <= self.rect.right and cenAt_c >= 180:
+                        if player.rect.y <= self.rect.bottom and player.rect.bottom >= self.rect.y - 10 and player.rect.right >= self.rect.x and player.rect.x <= self.rect.right and cenAt_c >= 90:
                             hp -= 0.05 * A
                         if player.rect.y <= self.rect.bottom and player.rect.bottom >= self.rect.y - 10 and player.rect.right >= self.rect.x and player.rect.x <= self.rect.right:
                             cop_hp -= 0.1
 
                         if not CoPdOwN and not cop_stop:
                             if self.rect.centerx > cenAt_x + 5:
-                                self.rect.x -= 2
+                                self.rect.x -= 3
                                 if player.rect.y <= self.rect.bottom and player.rect.bottom >= self.rect.y - 10 and player.rect.right >= self.rect.x and player.rect.x <= self.rect.right:
-                                    player.rect.x -= 2
+                                    player.rect.x -= 3
                             elif self.rect.centerx < cenAt_x:
-                                self.rect.x += 2
+                                self.rect.x += 3
                                 if player.rect.y <= self.rect.bottom and player.rect.bottom >= self.rect.y - 10 and player.rect.right >= self.rect.x and player.rect.x <= self.rect.right:
-                                    player.rect.x += 2
+                                    player.rect.x += 3
                             if self.rect.centery > cenAt_y + 5:
-                                self.rect.y -= 2
+                                self.rect.y -= 3
                                 if player.rect.y <= self.rect.bottom and player.rect.bottom >= self.rect.y - 10 and player.rect.right >= self.rect.x and player.rect.x <= self.rect.right:
-                                    player.rect.y -= 2
-                                if self.rect.y > 800:
+                                    player.rect.y -= 3
+                                if self.rect.y > 900:
                                     self.rect.y -= 10
                             if self.rect.centery < cenAt_y:
-                                self.rect.y += 2
+                                self.rect.y += 3
                                 if player.rect.y <= self.rect.bottom and player.rect.bottom >= self.rect.y - 10 and player.rect.right >= self.rect.x and player.rect.x <= self.rect.right:
-                                    player.rect.y += 2
+                                    player.rect.y += 3
 
-                        if random.randint(0, 2000) <= 1 and cenAt_c >= 180:
+                        if random.randint(0, int(1000 + move_speed * 10)) <= 1 and cenAt_c >= 90:
                             cenAt_x = random.randint(400, 600)
                             cenAt_y = random.randint(300, 600)
 
                         if self.rect.centerx >= cenAt_x - 10 and self.rect.centerx <= cenAt_x + 10 and self.rect.centery <= cenAt_y + 10 and self.rect.centery >= cenAt_y - 10:
-                            if cenAt_c < 180:
+                            if cenAt_c < 90:
                                 cenAt_c += 1
                         else:
                             cenAt_c = 0
 
-                        if cenAt_c >= 180:
+                        if cenAt_c >= 90:
                             cenAt_d += 1
 
                         if cenAt_d >= 50:
@@ -816,7 +816,6 @@ while not STOP:
             if not pause and not menu:
                 if player.rect.x == pit_pl_x and player.rect.y == pit_pl_y:
                     pit_c += 1
-                    print(pit_c)
                 else:
                     pit_c = 0
                     pit_pl_x, pit_pl_y = player.rect.x, player.rect.y
@@ -948,7 +947,7 @@ while not STOP:
                 pygame.draw.rect(screen, "black", (cop.rect.centerx - 53, cop.rect.y - 26, 106, 16))
                 pygame.draw.rect(screen, "red", (cop.rect.centerx - 50, cop.rect.y - 23, cop_hp, 10))
                 if ATTACK == "central":
-                    pygame.draw.arc(screen, "white", cop_at_rect, 0, cenAt_c / 28, 20)
+                    pygame.draw.arc(screen, "white", cop_at_rect, 0, cenAt_c / 14, 20)
             pygame.draw.rect(screen, "black", (55, 15, 110, 30))
             pygame.draw.rect(screen, "orange", (60, 20, hp, 20))
             pygame.draw.circle(screen, "black", (50, 100), 34)
