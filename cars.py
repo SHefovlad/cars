@@ -344,6 +344,8 @@ while not STOP:
                         self.rect.y -= up
                         up -= 0.3
                         UP = 0
+                    if not self.rect.y > 10:
+                        up = 0
                     for i in bots:
                         if down > 0 and not keys[pygame.K_DOWN] and self.rect.bottom <= 790 and not (i.rect.y <= self.rect.bottom and i.rect.bottom >= self.rect.y + 10 and i.rect.right >= self.rect.x + 10 and i.rect.x <= self.rect.right - 10):
                             DOWN += 1
@@ -351,6 +353,8 @@ while not STOP:
                         self.rect.y += down
                         down -= 0.3
                         DOWN = 0
+                    if not self.rect.bottom < 790:
+                        down = 0
                     for i in bots:
                         if left > 0 and not keys[pygame.K_LEFT] and self.rect.x >= 250 and not (i.rect.y <= self.rect.bottom and i.rect.bottom >= self.rect.y + 10 and i.rect.right >= self.rect.x + 10 and i.rect.x <= self.rect.right - 10):
                             LEFT += 1
@@ -358,6 +362,8 @@ while not STOP:
                         self.rect.x -= left
                         left -= 0.5
                         LEFT = 0
+                    if not self.rect.x > 250:
+                        left = 0
                     for i in bots:
                         if right > 0 and not keys[pygame.K_RIGHT] and self.rect.x <= 660 and not (i.rect.y <= self.rect.bottom and i.rect.bottom >= self.rect.y + 10 and i.rect.right >= self.rect.x + 10 and i.rect.x <= self.rect.right - 10):
                             RIGHT += 1
@@ -365,6 +371,8 @@ while not STOP:
                         self.rect.x += right
                         right -= 0.5
                         RIGHT = 0
+                    if not self.rect.x < 660:
+                        right = 0
                 else:
                     up = 0; down = 0; left = 0; right = 0
 
@@ -421,6 +429,13 @@ while not STOP:
                     
                     if not bot_spawn and i.rect.y >= 800:
                         i.rect.x = 3000
+
+                    if i.rect.right >= cop.rect.x - 10 and i.rect.x <= cop.rect.right + 10 and i.rect.y >= cop.rect.y:
+                        print(1)
+                        if i.rect.centerx >= 500:
+                            i.rect.x += 4
+                        else:
+                            i.rect.x -= 4
 
                     if i.rect.y <= player.rect.bottom and i.rect.bottom >= player.rect.y and i.rect.right >= player.rect.x + 10 and i.rect.x <= player.rect.right - 10:
                         DMG += 1
@@ -630,7 +645,7 @@ while not STOP:
                     if cop_attack:
                         cop_attack = False
                         bot_spawn = True
-                        ATTACK = attack_list[random.randint(0, 1)]
+                        ATTACK = attack_list[random.randint(0, 2) - 1]
                         for i in bots:
                             i.rect.y += 1000
                     else:
@@ -717,7 +732,10 @@ while not STOP:
                         
                         if (sidAt_s == 0 or sidAt_s == 2 or sidAt_s == 4) and not CoPdOwN:
                             self.rect.y -= 7
-                            self.rect.centerx = 310
+                            if self.rect.centerx >= 315:
+                                self.rect.x -= 5
+                            elif self.rect.centerx <= 305:
+                                self.rect.x += 5
                             if sidAt_c >= 30:
                                 bul_img = pygame.image.load(os.path.join(img_folder, 'bl-1.png')).convert()
                                 bul_img = pygame.transform.rotate(bul_img, -90)
@@ -727,11 +745,15 @@ while not STOP:
                             if self.rect.bottom <= 0:
                                 sidAt_s += 1
                                 self.rect.y = 900
+                                self.rect.centerx = 700
                                 bullet.rect.y = 1000 
 
                         if (sidAt_s == 1 or sidAt_s == 3 or sidAt_s == 5) and not CoPdOwN:
                             self.rect.y -= 7
-                            self.rect.centerx = 700
+                            if self.rect.centerx >= 705:
+                                self.rect.x -= 5
+                            elif self.rect.centerx <= 695:
+                                self.rect.x += 5
                             if sidAt_c >= 30:
                                 bul_img = pygame.image.load(os.path.join(img_folder, 'bl-1.png')).convert()
                                 bul_img = pygame.transform.rotate(bul_img, 90)
@@ -780,7 +802,7 @@ while not STOP:
                     if self.rect.bottom <= 800:
                         if random.randint(0, 2000) == 1:
                             cop_attack = True
-                            ATTACK = attack_list[random.randint(0, 1)]
+                            ATTACK = attack_list[random.randint(0, 2) - 1]
                             cop_hp = 100
 
                 if player.rect.y <= self.rect.bottom and player.rect.bottom >= self.rect.y - 10 and player.rect.right >= self.rect.x and player.rect.x <= self.rect.right and not cop_attack:
@@ -798,8 +820,8 @@ while not STOP:
             global ATTACK, hp, shake, left, right, up, down
             if not pause and not menu:
                 if player.rect.y <= self.rect.bottom and player.rect.bottom >= self.rect.y and player.rect.right >= self.rect.x + 10 and player.rect.x <= self.rect.right - 10:
-                    self.rect.x = -100
-                    self.rect.y = -100
+                    self.rect.x = -1000
+                    self.rect.y = -1000
                     hp -= 3
                     shake += 5
                     if ATTACK == "side":
