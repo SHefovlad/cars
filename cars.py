@@ -36,6 +36,7 @@ while not STOP:
     bul_img = pygame.image.load(os.path.join(img_folder, 'bl-1.png')).convert()
     dron_img = pygame.image.load(os.path.join(img_folder, 'dr-1.png')).convert()
     pit_img = pygame.image.load(os.path.join(img_folder, 'pt-1.png')).convert()
+    spikes_img = pygame.image.load(os.path.join(img_folder, 'sp-1.png')).convert()
     cop_img = cop_nr_img
     key_img = pygame.image.load(os.path.join(img_folder, 'ky-1.png')).convert()
     key_img.set_colorkey(CK)
@@ -120,7 +121,7 @@ while not STOP:
     cop_attack = False
     at_c = 0
     ATTACK = "central"
-    attack_list = ["cenrtal", "side"]
+    attack_list = ["cenrtal", "side", "spikes"]
     cenAt_c = 0
     cenAt_d = 0
     bul_x = 0
@@ -140,6 +141,9 @@ while not STOP:
     sidAt_c = 0
     pit_c = 0
     pit_pl_x, pit_pl_y = 0, 0
+    spikes_dam = True
+    slow = 0
+    s = 0
 
     class Road(pygame.sprite.Sprite):
         def __init__(self, x, y):
@@ -167,10 +171,14 @@ while not STOP:
             self.rect.center = (x, y)
 
         def update(self):
-            global keys, Flip, player_img, flip, hp, up, down, left, right, i, UP, DOWN, RIGHT, LEFT, push, resW, resS, resA, scal, oil_img, shake, FLIP, cop_stop, cop_attack, cop_hp, resD, D, A, FPS, all_sprites
+            global keys, Flip, player_img, flip, hp, up, down, left, right, i, UP, DOWN, RIGHT, LEFT, push, resW, resS, resA, scal, oil_img, shake, FLIP, cop_stop, cop_attack, cop_hp, resD, D, A, FPS, all_sprites, s, slow
             keys = pygame.key.get_pressed()
             if not pause and not menu:
                 flip = 0
+                if slow > 0:
+                    s += 0
+                if s >= 600:
+                    slow -= 1
                 if resW < 1800:
                     resW += 1
                 if resS < 3000:
@@ -225,39 +233,39 @@ while not STOP:
                             if not Flip:
                                 FLIP = 1
                                 flip = 1
-                            self.rect.x -= 5
-                            left = 5
+                            self.rect.x -= 5 - slow
+                            left = 5 - slow
                             if cop.rect.y <= self.rect.bottom and cop.rect.bottom >= self.rect.y + 20 and cop.rect.right >= self.rect.x + 15 + ((cop.rect.y - self.rect.y) / 4) and cop.rect.x <= self.rect.right - 50:
                                 shake += 2
                                 if cop.rect.x >= 250 and not cop_attack:
-                                    self.rect.x += 3
-                                    cop.rect.x -= 2
+                                    self.rect.x += 3 + slow
+                                    cop.rect.x -= 2 - slow
                                     left = 0
                                     cop_stop = True
                                     for _ in bots:
                                         if _.rect.x >= 250:
                                             if _.rect.y <= cop.rect.bottom and _.rect.bottom >= cop.rect.y + 20 and _.rect.right >= cop.rect.x + 20 and _.rect.x <= cop.rect.right - 20:
-                                                _.rect.x -= 5
+                                                _.rect.x -= 5 + slow
                                         else:
-                                            self.rect.x += 5
-                                            cop.rect.x += 5
+                                            self.rect.x += 5 - slow
+                                            cop.rect.x += 5 - slow
                                 else:
                                     left = 0
-                                    self.rect.x += 5
+                                    self.rect.x += 5 - slow
                             else: cop_stop = False
                             for i in bots:
                                 if i.rect.y <= self.rect.bottom and i.rect.bottom >= self.rect.y + 20 and i.rect.right >= self.rect.x + 15 + ((i.rect.y - self.rect.y) / 4) and i.rect.x <= self.rect.right - 50:
-                                    i.rect.x -= 2
-                                    self.rect.x += 3
+                                    i.rect.x -= 2 - slow
+                                    self.rect.x += 3 + slow
                                     left = 0
                                     for _ in bots:
                                         if _ != i:
                                             if _.rect.x >= 250:
                                                 if _.rect.y <= i.rect.bottom and _.rect.bottom >= i.rect.y + 20 and _.rect.right >= i.rect.x + 20 and _.rect.x <= i.rect.right - 20:
-                                                    _.rect.x -= 5
+                                                    _.rect.x -= 5 + slow
                                             else:
-                                                self.rect.x += 5
-                                                i.rect.x += 5
+                                                self.rect.x += 5 - slow
+                                                i.rect.x += 5 - slow
                                     if i.rect.x <= 250:
                                         self.rect.x += 5
                                         i.rect.x += 5
@@ -265,78 +273,78 @@ while not STOP:
                             if not Flip:
                                 FLIP = -1
                                 flip = -1
-                            self.rect.x += 5
-                            right = 5
+                            self.rect.x += 5 - slow
+                            right = 5 - slow
                             if cop.rect.y <= self.rect.bottom and cop.rect.bottom >= self.rect.y + 20 and cop.rect.right >= self.rect.x + 50 and cop.rect.x <= self.rect.right - 15 - ((cop.rect.y - self.rect.y) / 4):
                                 if cop.rect.right <= 750 and not cop_attack:
-                                    self.rect.x -= 3
-                                    cop.rect.x += 2
+                                    self.rect.x -= 3 + slow
+                                    cop.rect.x += 2 - slow
                                     right = 0
                                     cop_stop = True
                                     shake += 2
                                     for _ in bots:
                                         if _.rect.right <= 750:
                                             if _.rect.y <= cop.rect.bottom and _.rect.bottom >= cop.rect.y + 20 and _.rect.right >= cop.rect.x + 20 and _.rect.x <= cop.rect.right - 20:
-                                                _.rect.x += 5
+                                                _.rect.x += 5 - slow
                                         else:
-                                            self.rect.x -= 5
-                                            cop.rect.x -= 5
+                                            self.rect.x -= 5 - slow
+                                            cop.rect.x -= 5 - slow
                                 else:
                                     right = 0
-                                    self.rect.x -= 5
+                                    self.rect.x -= 5 - slow
                             else: cop_stop = False
                             for i in bots:
                                 if i.rect.y <= self.rect.bottom and i.rect.bottom >= self.rect.y + 20 and i.rect.right >= self.rect.x + 50 and i.rect.x <= self.rect.right - 15 - ((i.rect.y - self.rect.y) / 4):
-                                    i.rect.x += 2
-                                    self.rect.x -= 3
+                                    i.rect.x += 2 - slow
+                                    self.rect.x -= 3 + slow
                                     right = 0
                                     for _ in bots:
                                         if _ != i:
                                             if _.rect.right <= 750:
                                                 if _.rect.y <= i.rect.bottom and _.rect.bottom >= i.rect.y + 20 and _.rect.right >= i.rect.x + 20 and _.rect.x <= i.rect.right - 20:
-                                                    _.rect.x += 5
+                                                    _.rect.x += 5 - slow
                                             else:
-                                                self.rect.x -= 5
-                                                i.rect.x -= 5
+                                                self.rect.x -= 5 - slow
+                                                i.rect.x -= 5 - slow
                                     if i.rect.right >= 750:
-                                        self.rect.x -= 5
-                                        i.rect.x -= 5
+                                        self.rect.x -= 5 - slow
+                                        i.rect.x -= 5 - slow
                         else:
                             flip = 0
                             FLIP = 0
                             Flip = False
                     if keys[pygame.K_UP] and self.rect.y >= 10:
-                        self.rect.y -= 5
-                        up = 5
+                        self.rect.y -= 5 - slow
+                        up = 5 - slow
                         if cop.rect.y <= self.rect.bottom and cop.rect.bottom >= self.rect.y + 10 and cop.rect.right >= self.rect.x + 20 and cop.rect.x <= self.rect.right - 20:
                             shake += 2
                             if not CoPdOwN and not cop_attack:
                                 up = 0
-                                cop.rect.y -= 2
-                                self.rect.y += 3
+                                cop.rect.y -= 2 - slow
+                                self.rect.y += 3 + slow
                             else:
                                 up = 0
-                                self.rect.y += 5
+                                self.rect.y += 5 - slow
                         for i in bots:
-                            if i.rect.y <= self.rect.bottom and i.rect.bottom >= self.rect.y + 10 and i.rect.right >= self.rect.x + 20 and i.rect.x <= self.rect.right - 20:
-                                i.rect.y -= 2
-                                self.rect.y += 3
+                            if i.rect.y <= self.rect.bottom and i.rect.bottom + 10 >= self.rect.y + 10 and i.rect.right >= self.rect.x + 20 and i.rect.x <= self.rect.right - 20:
+                                i.rect.y -= 2 - slow
+                                self.rect.y += 3 + slow
                     if keys[pygame.K_DOWN] and self.rect.bottom <= 790:
-                        self.rect.y += 5
-                        down = 5
+                        self.rect.y += 5 - slow
+                        down = 5 - slow
                         if cop.rect.y <= self.rect.bottom and cop.rect.bottom >= self.rect.y + 10 and cop.rect.right >= self.rect.x + 20 and cop.rect.x <= self.rect.right - 20:
                             shake += 2
                             if not CoPdOwN and not cop_attack:
                                 down = 0
-                                cop.rect.y += 2
-                                self.rect.y -= 3
+                                cop.rect.y += 2 - slow
+                                self.rect.y -= 3 + slow
                             else:
                                 down = 0
-                                self.rect.y -= 5
+                                self.rect.y -= 5 - slow
                         for i in bots:
                             if i.rect.y <= self.rect.bottom and i.rect.bottom >= self.rect.y + 10 and i.rect.right >= self.rect.x + 20 and i.rect.x <= self.rect.right - 20:
-                                i.rect.y += 2
-                                self.rect.y -= 3
+                                i.rect.y += 2 - slow
+                                self.rect.y -= 3 + slow
                     for i in bots:
                         if up > 0 and not keys[pygame.K_UP] and self.rect.y >= 10 and not (i.rect.y <= self.rect.bottom and i.rect.bottom >= self.rect.y + 10 and i.rect.right >= self.rect.x + 10 and i.rect.x <= self.rect.right - 10):
                             UP += 1
@@ -431,7 +439,6 @@ while not STOP:
                         i.rect.x = 3000
 
                     if i.rect.right >= cop.rect.x - 10 and i.rect.x <= cop.rect.right + 10 and i.rect.y >= cop.rect.y:
-                        print(1)
                         if i.rect.centerx >= 500:
                             i.rect.x += 4
                         else:
@@ -508,7 +515,7 @@ while not STOP:
             self.rect.center = (x, y)
         
         def update(self):
-            global points, dodge, dodge_, cop_band, free_band, CoPdOwN, CoPdOwNN, cop_stun, cop_img, cop_flip, cop_to_plus, cop_to_minus, shake, hp, cop_attack, bot_spawn, at_c, cenAt_c, cenAt_d, sidAt_s, sidAt_c, ATTACK, bul_x, bul_y, bul_img, cenAt_x, cenAt_y, cop_hp
+            global points, dodge, dodge_, cop_band, free_band, CoPdOwN, CoPdOwNN, cop_stun, cop_img, cop_flip, cop_to_plus, cop_to_minus, shake, hp, cop_attack, bot_spawn, at_c, cenAt_c, cenAt_d, sidAt_s, sidAt_c, spikes_dam, ATTACK, bul_x, bul_y, bul_img, cenAt_x, cenAt_y, cop_hp
             if not pause and not menu:
                 dodge = False
                 cop_to_plus = False
@@ -668,9 +675,9 @@ while not STOP:
                             i.rect.y += 2000
 
                     if ATTACK == "central":
-                        if player.rect.y <= self.rect.bottom and player.rect.bottom >= self.rect.y - 10 and player.rect.right >= self.rect.x and player.rect.x <= self.rect.right and cenAt_c >= 90:
-                            hp -= 0.05 * A
                         if player.rect.y <= self.rect.bottom and player.rect.bottom >= self.rect.y - 10 and player.rect.right >= self.rect.x and player.rect.x <= self.rect.right:
+                            if cenAt_c >= 90:
+                                hp -= 0.05
                             cop_hp -= 0.1
 
                         if not CoPdOwN and not cop_stop:
@@ -798,6 +805,12 @@ while not STOP:
                             bot_spawn = True
                             CoPdOwN = True
                 
+                    if ATTACK == "spikes":
+                        if player.rect.y <= self.rect.bottom and player.rect.bottom >= self.rect.y - 10 and player.rect.right >= self.rect.x and player.rect.x <= self.rect.right:
+                            hp -= 0.05
+                            cop_hp -= 0.1
+
+
                 else:
                     if self.rect.bottom <= 800:
                         if random.randint(0, 2000) == 1:
@@ -863,13 +876,33 @@ while not STOP:
                     pit_img = pygame.image.load(os.path.join(img_folder, 'pt-1.png')).convert()
                     pit_img = pygame.transform.rotate(pit_img, random.randint(0, 360))
                     pit.__init__(player.rect.centerx, -50)
-                if player.rect.y <= self.rect.bottom and player.rect.bottom >= self.rect.y and player.rect.right >= self.rect.x + 10 and player.rect.x <= self.rect.right - 10 and pit_c >= 600:
+                if player.rect.y <= self.rect.bottom and player.rect.bottom >= self.rect.y and player.rect.right >= self.rect.x and player.rect.x <= self.rect.right and pit_c >= 600:
                     pit_c = 0
                     hp -= 5
                     if player.rect.x <= 600:
                         right = random.randint(0, 5) + 10
                     else:
                         left = random.randint(0, 5) + 10
+                self.rect.y += 15 + move_speed
+
+    class Spikes(pygame.sprite.Sprite):
+        def __init__(self, x, y):
+            pygame.sprite.Sprite.__init__(self)
+            self.image = spikes_img
+            self.image.set_colorkey(CK)
+            self.rect = self.image.get_rect()
+            self.rect.center = (x, y)
+
+        def update (self):
+            global hp, left, right, spikes_dam
+            if not pause and not menu:
+                if player.rect.y <= self.rect.bottom and player.rect.bottom >= self.rect.y and player.rect.right >= self.rect.x and player.rect.x <= self.rect.right and spikes_dam:
+                    hp -= 5
+                    spikes_dam = False
+                    if self.rect.centerx >= 500:
+                        left += 15
+                    else:
+                        right += 15
                 self.rect.y += 15 + move_speed
 
     def okr(a = 0, b = 0):
@@ -898,8 +931,9 @@ while not STOP:
     bullet = Bullet(300, 1300)
     cop = Cop(550, 10100)
     pit = Pit(0, 1000)
+    spikes = Spikes(260, -1000)
 
-    all_sprites = pygame.sprite.Group(road, pit, oil, bullet, player, cop)
+    all_sprites = pygame.sprite.Group(road, pit, spikes, oil, bullet, player, cop)
     for i in range(0, bot_count):
         b = Bot(500, random.randint(800, 1000))
         bots.append(b)
