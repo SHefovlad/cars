@@ -694,7 +694,7 @@ while not STOP:
                                 hp -= 0.05
                             cop_hp -= 0.1
 
-                        if not CoPdOwN and not cop_stop:
+                        if not CoPdOwN:
                             if self.rect.centerx > cenAt_x + 5:
                                 self.rect.x -= 3
                                 if player.rect.y <= self.rect.bottom and player.rect.bottom >= self.rect.y - 10 and player.rect.right >= self.rect.x and player.rect.x <= self.rect.right:
@@ -753,6 +753,8 @@ while not STOP:
                         
                         if (sidAt_s == 0 or sidAt_s == 2 or sidAt_s == 4) and not CoPdOwN:
                             self.rect.y -= 7
+                            if player.rect.y <= self.rect.bottom and player.rect.bottom >= self.rect.y - 10 and player.rect.right >= self.rect.x and player.rect.x <= self.rect.right:
+                                player.rect.y -= 7
                             if self.rect.centerx >= 315:
                                 self.rect.x -= 5
                                 if player.rect.y <= self.rect.bottom and player.rect.bottom >= self.rect.y - 10 and player.rect.right >= self.rect.x and player.rect.x <= self.rect.right:
@@ -775,15 +777,16 @@ while not STOP:
 
                         if (sidAt_s == 1 or sidAt_s == 3 or sidAt_s == 5) and not CoPdOwN:
                             self.rect.y -= 7
-                            print(self.rect.x, self.rect.centerx)
-                            #if self.rect.centerx >= 705:
-                            #    self.rect.x -= 5
-                            #    if player.rect.y <= self.rect.bottom and player.rect.bottom >= self.rect.y - 10 and player.rect.right >= self.rect.x and player.rect.x <= self.rect.right:
-                            #        player.rect.x -= 5
-                            #elif self.rect.centerx <= 695:
-                            #    self.rect.x += 5
-                            #    if player.rect.y <= self.rect.bottom and player.rect.bottom >= self.rect.y - 10 and player.rect.right >= self.rect.x and player.rect.x <= self.rect.right:
-                            #        player.rect.x += 5
+                            if player.rect.y <= self.rect.bottom and player.rect.bottom >= self.rect.y - 10 and player.rect.right >= self.rect.x and player.rect.x <= self.rect.right:
+                                player.rect.y -= 7
+                            if self.rect.centerx >= 705:
+                                self.rect.x -= 5
+                                if player.rect.y <= self.rect.bottom and player.rect.bottom >= self.rect.y - 10 and player.rect.right >= self.rect.x and player.rect.x <= self.rect.right:
+                                    player.rect.x -= 5
+                            elif self.rect.centerx <= 695:
+                                self.rect.x += 5
+                                if player.rect.y <= self.rect.bottom and player.rect.bottom >= self.rect.y - 10 and player.rect.right >= self.rect.x and player.rect.x <= self.rect.right:
+                                    player.rect.x += 5
                             if sidAt_c >= 30:
                                 bul_img = pygame.image.load(os.path.join(img_folder, 'bl-1.png')).convert()
                                 bul_img = pygame.transform.rotate(bul_img, 90)
