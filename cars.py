@@ -124,7 +124,7 @@ while not STOP:
     cop_attack = False
     at_c = 0
     ATTACK = "central"
-    attack_list = ["cenrtal", "side", "spikes"]
+    attack_list = ["central", "side", "spikes"]
     cenAt_c = 0
     cenAt_d = 0
     bul_x = 0
@@ -148,23 +148,6 @@ while not STOP:
     slow = 0
     s = 0
     spkAt_c, spkAt_d, spkAt_x = 0, 0, 508
-
-    class Road(pygame.sprite.Sprite):
-        def __init__(self, x, y):
-            pygame.sprite.Sprite.__init__(self)
-            self.image = road_img
-            self.image.set_colorkey(CK)
-            self.rect = self.image.get_rect()
-            self.rect.center = (x, y)
-
-        def update(self):
-            global move_speed
-            if not pause:
-                self.rect.y += 15 + move_speed
-            if not pause and not menu:
-                move_speed += 0.0001
-            if self.rect.y >= 0:
-                self.rect.y = -1000
 
     class Player(pygame.sprite.Sprite):
         def __init__(self, x, y):
@@ -426,7 +409,7 @@ while not STOP:
                 if push <= 1.5:
                     push = 0
                 for i in bots:
-                    if i.rect.y < cop.rect.bottom or i.rect.bottom + 60 > cop.rect.y:
+                    if i.rect.y < cop.rect.bottom or not (i.rect.bottom + 60 > cop.rect.y):
                         if i.rect.x >= 639:
                             band_list.append(3)
                         elif i.rect.x >= 508:
@@ -492,32 +475,6 @@ while not STOP:
                     shake += 1 / len(bots)
                     hp -= 0.01 * A
                     DMG = 0
-
-    class Oil(pygame.sprite.Sprite):
-        def __init__(self, x, y):
-            pygame.sprite.Sprite.__init__(self)
-            self.image = oil_img
-            self.image.set_colorkey(CK)
-            self.rect = self.image.get_rect()
-            self.rect.center = (x, y)
-
-        def update(self):
-            global i, e, oil_img, scal
-            if not pause and not menu:
-                self.rect.y += 15 + move_speed
-                for i in bots:
-                    if i.rect.x <= self.rect.right and i.rect.right >= self.rect.x and i.rect.y <= self.rect.bottom - 170 and i.rect.bottom >= self.rect.y:
-                        i.rect.y += 11
-                
-                if self.rect.y >= 800:
-                    self.rect.x = 2000
-
-                if scal < 300:
-                    scal += 10
-
-                oil_img = pygame.image.load(os.path.join(img_folder, 'oi-1.png')).convert()
-                oil_img = pygame.transform.scale(oil_img, (scal, scal))
-                self.__init__(self.rect.centerx, self.rect.centery)
 
     class Cop(pygame.sprite.Sprite):
         def __init__(self, x, y):
@@ -602,8 +559,12 @@ while not STOP:
                 else: dodge_ = 0
             
                 if cop_stun <= 0:
-                    if not CoPdOwN and not (player.rect.y <= cop.rect.bottom and player.rect.bottom >= cop.rect.y and player.rect.right >= cop.rect.x + 10 and player.rect.x <= cop.rect.right - 10) and not cop_stop and not cop_attack:
-                        self.rect.x += 10 * dodge_
+                    if not CoPdOwN and not (player.rect.y <= cop.rect.bottom and player.rect.bottom >= cop.rect.y and player.rect.right >= cop.rect.x + 10 and player.rect.x <= cop.rect.right - 10) and not cop_stop and not cop_attack:               
+                        for i in bots:
+                            if dodge_ == 1 and not (i.rect.y <= cop.rect.bottom - 10 and i.rect.bottom >= cop.rect.y - 60 and i.rect.x >= cop.rect.right + 50):
+                                self.rect.x += 10 * dodge_ / bot_count
+                            elif dodge_ == -1 and not (i.rect.y <= cop.rect.bottom - 10 and i.rect.bottom >= cop.rect.y - 60 and i.rect.right + 50 <= cop.rect.right):
+                                self.rect.x += 10 * dodge_ / bot_count
                     if not CoPdOwN and not cop_attack:
                         if self.rect.y >= 400 and not (player.rect.y <= self.rect.bottom and player.rect.bottom >= self.rect.y - 35 and player.rect.right >= self.rect.x + 25 and player.rect.x <= self.rect.right - 25):
                             self.rect.y -= 5
@@ -903,6 +864,49 @@ while not STOP:
                             cop_attack = True
                             ATTACK = attack_list[random.randint(0, 2)]
                             cop_hp = 100
+
+    class Road(pygame.sprite.Sprite):
+        def __init__(self, x, y):
+            pygame.sprite.Sprite.__init__(self)
+            self.image = road_img
+            self.image.set_colorkey(CK)
+            self.rect = self.image.get_rect()
+            self.rect.center = (x, y)
+
+        def update(self):
+            global move_speed
+            if not pause:
+                self.rect.y += 15 + move_speed
+            if not pause and not menu:
+                move_speed += 0.0001
+            if self.rect.y >= 0:
+                self.rect.y = -1000
+
+    class Oil(pygame.sprite.Sprite):
+        def __init__(self, x, y):
+            pygame.sprite.Sprite.__init__(self)
+            self.image = oil_img
+            self.image.set_colorkey(CK)
+            self.rect = self.image.get_rect()
+            self.rect.center = (x, y)
+
+        def update(self):
+            global i, e, oil_img, scal
+            if not pause and not menu:
+                self.rect.y += 15 + move_speed
+                for i in bots:
+                    if i.rect.x <= self.rect.right and i.rect.right >= self.rect.x and i.rect.y <= self.rect.bottom - 170 and i.rect.bottom >= self.rect.y:
+                        i.rect.y += 11
+                
+                if self.rect.y >= 800:
+                    self.rect.x = 2000
+
+                if scal < 300:
+                    scal += 10
+
+                oil_img = pygame.image.load(os.path.join(img_folder, 'oi-1.png')).convert()
+                oil_img = pygame.transform.scale(oil_img, (scal, scal))
+                self.__init__(self.rect.centerx, self.rect.centery)
 
     class Bullet(pygame.sprite.Sprite):
         def __init__(self, x, y):
