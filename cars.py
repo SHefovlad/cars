@@ -23,8 +23,12 @@ while not STOP:
     ou = 0
     screen.fill(BLUE)
     DataFile = open("data.txt", "r")
-    record = int(DataFile.read())
+    data = DataFile.read()
     DataFile.close()
+
+    data = data.split("\n")
+    record = int(data[0])
+    coins = int(data[1])
 
     player_img = pygame.image.load(os.path.join(img_folder, 'pl-1.png')).convert()
     road_img = pygame.image.load(os.path.join(img_folder, 'rd-1.png')).convert()
@@ -37,6 +41,7 @@ while not STOP:
     dron_img = pygame.image.load(os.path.join(img_folder, 'dr-1.png')).convert()
     pit_img = pygame.image.load(os.path.join(img_folder, 'pt-1.png')).convert()
     spikes_img = pygame.image.load(os.path.join(img_folder, 'sp-1.png')).convert()
+    coin_img = pygame.image.load(os.path.join(img_folder, 'cn-1.png')).convert()
     cop_img = cop_nr_img
     spark_img = pygame.image.load(os.path.join(img_folder, 'sr-1.png')).convert()
     key_img = pygame.image.load(os.path.join(img_folder, 'ky-1.png')).convert()
@@ -134,7 +139,7 @@ while not STOP:
     cop_hp = 0
     D = False
     A = 1
-    move_speed = 1
+    move_speed = -15
     resA = 4800
     bot_count = 5
     bots = []
@@ -148,6 +153,7 @@ while not STOP:
     slow = 0
     s = 0
     spkAt_c, spkAt_d, spkAt_x = 0, 0, 508
+    coinR = random.randint(7000, 13000)
 
     class Player(pygame.sprite.Sprite):
         def __init__(self, x, y):
@@ -875,10 +881,13 @@ while not STOP:
 
         def update(self):
             global move_speed
-            if not pause:
+            if not pause and not menu:
                 self.rect.y += 15 + move_speed
             if not pause and not menu:
-                move_speed += 0.0001
+                if move_speed < 1:
+                    move_speed += 0.05
+                else:
+                    move_speed += 0.0001
             if self.rect.y >= 0:
                 self.rect.y = -1000
 
@@ -999,6 +1008,27 @@ while not STOP:
 
                 self.rect.y += 15 + move_speed
 
+    class Coin(pygame.sprite.Sprite):
+        def __init__(self, x, y):
+            pygame.sprite.Sprite.__init__(self)
+            self.image = coin_img
+            self.image.set_colorkey(CK)
+            self.rect = self.image.get_rect()
+            self.rect.center = (x, y)
+
+        def update(self):
+            global coinR, coins
+            if not pause and not menu:
+                self.rect.y += 15 + move_speed
+                if player.rect.y <= self.rect.bottom and player.rect.bottom >= self.rect.y and player.rect.right >= self.rect.x + 10 and player.rect.x <= self.rect.right - 10:
+                    self.rect.y = 800
+                    coins += 1
+                    coinR = random.randint(5000, 10000)
+                if self.rect.y >= coinR and not cop_attack:
+                    self.rect.x = random.randint(300, 700)
+                    self.rect.y = -200
+
+
     def okr(a = 0, b = 0):
         angle = okr_b
         a = 100 * math.cos(angle) + player.rect.centerx - 25
@@ -1018,6 +1048,7 @@ while not STOP:
 
     font_type = pygame.font.Font('Teletactile.ttf', 20)
     text = font_type.render((str("Points: ") + str(points)), True, (0, 0, 0))
+    textC = font_type.render((str("Coins: ") + str(coins)), True, (0, 0, 0))
 
     road = Road(500, 0)
     oil = Oil(500, 10000)
@@ -1026,8 +1057,9 @@ while not STOP:
     cop = Cop(550, 10100)
     pit = Pit(0, 1000)
     spikes = Spikes(260, 1000)
+    coin = Coin(random.randint(300, 700), 1000)
 
-    all_sprites = pygame.sprite.Group(road, pit, spikes, oil, bullet, player, cop)
+    all_sprites = pygame.sprite.Group(road, pit, coin, spikes, oil, bullet, player, cop)
     for i in range(0, bot_count):
         b = Bot(500, random.randint(800, 50000))
         bots.append(b)
@@ -1079,15 +1111,16 @@ while not STOP:
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 w = event.button
     #----------------------------------------------------------------#
-        if hp >= 0:
+        if hp > 0:
             all_sprites.remove()
             all_sprites.update()
         else:
+            DataFile = open("data.txt", "w")
             if points > record:
-                DataFile = open("data.txt", "w")
-                DataFile.write(str(points))
-                DataFile.close()
-                running = False
+                DataFile.write(str(points), "\n", str(coins))
+            running = False
+            DataFile.write((str(record) + "\n" + str(coins)))
+            DataFile.close()
     #----------------------------------------------------------------#
         Wrect.centerx = player.rect.centerx; Wrect.centery = player.rect.centery
         okr_b += 0.03
@@ -1101,6 +1134,7 @@ while not STOP:
                 d = 0
                 if not menu:
                     text = font_type.render((str("Points: ") + str(points)), True, (0, 0, 0))
+                    textC = font_type.render((str("Coins: ") + str(coins)), True, (0, 0, 0))
             else:
                 d += 1
         for i in all_sprites:
@@ -1115,6 +1149,7 @@ while not STOP:
                 else:
                     screen.blit(spark_img, (player.rect.x - 17, player.rect.y), spark_rect)
             screen.blit(text, (770, 20))
+            screen.blit(textC, (770, 50))
             screen.blit(key_img, (10, 10), key_rect)
             okrd()
             if A == -1: screen.blit(dron_img, okr(), dron_rect)
