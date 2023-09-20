@@ -154,6 +154,7 @@ while not STOP:
     s = 0
     spkAt_c, spkAt_d, spkAt_x = 0, 0, 508
     coinR = random.randint(7000, 13000)
+    cop_at_t = 2000
 
     class Player(pygame.sprite.Sprite):
         def __init__(self, x, y):
@@ -491,7 +492,7 @@ while not STOP:
             self.rect.center = (x, y)
         
         def update(self):
-            global points, dodge, dodge_, cop_band, free_band, CoPdOwN, CoPdOwNN, cop_stun, cop_img, cop_flip, cop_to_plus, cop_to_minus, shake, hp, cop_attack, bot_spawn, at_c, cenAt_c, cenAt_d, sidAt_s, sidAt_c, spikes_dam, ATTACK, bul_x, bul_y, bul_img, cenAt_x, cenAt_y, spkAt_c, spkAt_d, spkAt_x, cop_hp
+            global points, coins, dodge, dodge_, cop_band, free_band, CoPdOwN, CoPdOwNN, cop_stun, cop_img, cop_flip, cop_to_plus, cop_to_minus, shake, hp, cop_attack, cop_at_t, bot_spawn, at_c, cenAt_c, cenAt_d, sidAt_s, sidAt_c, spikes_dam, ATTACK, bul_x, bul_y, bul_img, cenAt_x, cenAt_y, spkAt_c, spkAt_d, spkAt_x, cop_hp
             if not pause and not menu:
                 dodge = False
                 cop_to_plus = False
@@ -647,7 +648,9 @@ while not STOP:
                 if cop_hp <= 0 and cop_attack and self.rect.y >= 800:
                     cop_attack = False
                     points += 20
+                    coins += 5
                     self.rect.y = 10000
+                    cop_at_t = random.randint(600, 1800)
 
                 if cop_attack:
                     bot_spawn = False
@@ -866,10 +869,11 @@ while not STOP:
 
                 else:
                     if self.rect.bottom <= 800:
-                        if random.randint(0, 2000) == 1:
+                        if cop_at_t == 0:
                             cop_attack = True
                             ATTACK = attack_list[random.randint(0, 2)]
                             cop_hp = 100
+                        cop_at_t -= 1
 
     class Road(pygame.sprite.Sprite):
         def __init__(self, x, y):
@@ -1028,7 +1032,6 @@ while not STOP:
                     self.rect.x = random.randint(300, 700)
                     self.rect.y = -200
 
-
     def okr(a = 0, b = 0):
         angle = okr_b
         a = 100 * math.cos(angle) + player.rect.centerx - 25
@@ -1117,7 +1120,7 @@ while not STOP:
         else:
             DataFile = open("data.txt", "w")
             if points > record:
-                DataFile.write(str(points), "\n", str(coins))
+                record = points
             running = False
             DataFile.write((str(record) + "\n" + str(coins)))
             DataFile.close()
