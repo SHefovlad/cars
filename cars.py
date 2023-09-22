@@ -26,11 +26,14 @@ while not STOP:
     data = DataFile.read()
     DataFile.close()
 
+    skins = 3
+    skin = 1
+
     data = data.split("\n")
     record = int(data[0])
     coins = int(data[1])
 
-    player_img = pygame.image.load(os.path.join(img_folder, 'pl-1.png')).convert()
+    player_img = pygame.image.load(os.path.join(img_folder, ("pl-" + str(skin) + ".png"))).convert()
     road_img = pygame.image.load(os.path.join(img_folder, 'rd-1.png')).convert()
     oil_img = pygame.image.load(os.path.join(img_folder, 'oi-1.png')).convert()
     bot_img = pygame.image.load(os.path.join(img_folder, 'bt-1.png')).convert()
@@ -66,6 +69,10 @@ while not STOP:
     ps_31_img = pygame.image.load(os.path.join(img_folder, 'ps-31.png')).convert()
     ps_4_img = pygame.image.load(os.path.join(img_folder, 'ps-4.png')).convert()
     ps_41_img = pygame.image.load(os.path.join(img_folder, 'ps-41.png')).convert()
+    ps_5_img = pygame.image.load(os.path.join(img_folder, 'ps-5.png')).convert()
+    ps_51_img = pygame.image.load(os.path.join(img_folder, 'ps-51.png')).convert()
+    ps_6_img = pygame.transform.flip(ps_5_img, True, False)
+    ps_61_img = pygame.transform.flip(ps_51_img, True, False)
     ps_1_img.set_colorkey(CK)
     ps_11_img.set_colorkey(CK)
     ps_2_img.set_colorkey(CK)
@@ -74,6 +81,10 @@ while not STOP:
     ps_31_img.set_colorkey(CK)
     ps_4_img.set_colorkey(CK)
     ps_41_img.set_colorkey(CK)
+    ps_5_img.set_colorkey(CK)
+    ps_51_img.set_colorkey(CK)
+    ps_6_img.set_colorkey(CK)
+    ps_61_img.set_colorkey(CK)
 
     key_rect = key_img.get_rect()
     dron_rect = oil_img.get_rect()
@@ -155,6 +166,7 @@ while not STOP:
     spkAt_c, spkAt_d, spkAt_x = 0, 0, 508
     coinR = random.randint(7000, 13000)
     cop_at_t = 2000
+    la, ra = False, False
 
     class Player(pygame.sprite.Sprite):
         def __init__(self, x, y):
@@ -397,7 +409,7 @@ while not STOP:
                     self.__init__(self.rect.centerx, self.rect.centery)
                 if (not keys[pygame.K_LEFT] and not keys[pygame.K_RIGHT]) or (keys[pygame.K_LEFT] and keys[pygame.K_RIGHT]):
                     Flip = False
-                    player_img = pygame.image.load(os.path.join(img_folder, 'pl-1.png')).convert()
+                    player_img = pygame.image.load(os.path.join(img_folder, ("pl-" + str(skin) + ".png"))).convert()
                     self.__init__(self.rect.centerx, self.rect.centery)
 
     class Bot(pygame.sprite.Sprite):
@@ -492,7 +504,7 @@ while not STOP:
             self.rect.center = (x, y)
         
         def update(self):
-            global points, coins, dodge, dodge_, cop_band, free_band, CoPdOwN, CoPdOwNN, cop_stun, cop_img, cop_flip, cop_to_plus, cop_to_minus, shake, hp, cop_attack, cop_at_t, bot_spawn, at_c, cenAt_c, cenAt_d, sidAt_s, sidAt_c, spikes_dam, ATTACK, bul_x, bul_y, bul_img, cenAt_x, cenAt_y, spkAt_c, spkAt_d, spkAt_x, cop_hp
+            global move_speed, points, coins, dodge, dodge_, cop_band, free_band, CoPdOwN, CoPdOwNN, cop_stun, cop_img, cop_flip, cop_to_plus, cop_to_minus, shake, hp, cop_attack, cop_at_t, bot_spawn, at_c, cenAt_c, cenAt_d, sidAt_s, sidAt_c, spikes_dam, ATTACK, bul_x, bul_y, bul_img, cenAt_x, cenAt_y, spkAt_c, spkAt_d, spkAt_x, cop_hp
             if not pause and not menu:
                 dodge = False
                 cop_to_plus = False
@@ -644,7 +656,7 @@ while not STOP:
                         cop_hp = 100
 
                 if keys[pygame.K_x]:
-                    ATTACK = input("attack - ")
+                    move_speed = input("attack - ")
                 if cop_hp <= 0 and cop_attack and self.rect.y >= 800:
                     cop_attack = False
                     points += 20
@@ -1027,7 +1039,7 @@ while not STOP:
                 if player.rect.y <= self.rect.bottom and player.rect.bottom >= self.rect.y and player.rect.right >= self.rect.x + 10 and player.rect.x <= self.rect.right - 10:
                     self.rect.y = 800
                     coins += 1
-                    coinR = random.randint(5000, 10000)
+                    coinR = random.randint(int(10000 - (move_speed * 100)), int(15000 - (move_speed * 100)))
                 if self.rect.y >= coinR and not cop_attack:
                     self.rect.x = random.randint(300, 700)
                     self.rect.y = -200
@@ -1249,6 +1261,50 @@ while not STOP:
                     menu = False
             else:
                 screen.blit(ps_41_img, (355, 300))
+        if menu:
+            if keys[pygame.K_RIGHT] and ra:
+                ra = False
+                if skin == skins:
+                    skin = 1
+                else:
+                    skin += 1
+                player_img = pygame.image.load(os.path.join(img_folder, ("pl-" + str(skin) + ".png"))).convert()
+                player.__init__(player.rect.centerx, player.rect.centery)
+            elif not keys[pygame.K_RIGHT]:
+                ra = True
+            if ty[0] >= 580 and ty[1] >= 670 and ty[0] <= 580 + 40 and ty[1] <= 670 + 40:
+                screen.blit(ps_5_img, (580, 670))
+                if w == 1:
+                    if skin == skins:
+                        skin = 1
+                    else:
+                        skin += 1
+                    player_img = pygame.image.load(os.path.join(img_folder, ("pl-" + str(skin) + ".png"))).convert()
+                    player.__init__(player.rect.centerx, player.rect.centery)
+            else:
+                screen.blit(ps_51_img, (580, 670))
+        if menu:
+            if keys[pygame.K_LEFT] and la:
+                la = False
+                if skin == 1:
+                    skin = skins
+                else:
+                    skin -= 1
+                player_img = pygame.image.load(os.path.join(img_folder, ("pl-" + str(skin) + ".png"))).convert()
+                player.__init__(player.rect.centerx, player.rect.centery)
+            elif not keys[pygame.K_LEFT]:
+                la = True
+            if ty[0] >= 395 and ty[1] >= 670 and ty[0] <= 395 + 40 and ty[1] <= 670 + 40:
+                screen.blit(ps_6_img, (395, 670))
+                if w == 1:
+                    if skin == 1:
+                        skin = skins
+                    else:
+                        skin -= 1
+                    player_img = pygame.image.load(os.path.join(img_folder, ("pl-" + str(skin) + ".png"))).convert()
+                    player.__init__(player.rect.centerx, player.rect.centery)
+            else:
+                screen.blit(ps_61_img, (395, 670))
     #----------------------------------------------------------------#
         outro = True
         if outro and ou_r <= 1010:
