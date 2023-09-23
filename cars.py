@@ -26,7 +26,7 @@ while not STOP:
     data = DataFile.read()
     DataFile.close()
 
-    skins = 3
+    skins = 4
     skin = 1
 
     data = data.split("\n")
@@ -219,7 +219,7 @@ while not STOP:
                 if keys[pygame.K_a] and resA >= 4800 and not D:
                     A = -1
                     resA = 0
-                elif resA >= 1000:
+                elif resA >= 600:
                     A = 1
                 if oil.rect.x <= 200:
                     oil.rect.x = 200
@@ -1268,6 +1268,11 @@ while not STOP:
                     skin = 1
                 else:
                     skin += 1
+                if skin == 4:
+                    road_img = pygame.image.load(os.path.join(img_folder, 'rd-2.png')).convert()
+                else:
+                    road_img = pygame.image.load(os.path.join(img_folder, 'rd-1.png')).convert()
+                road.__init__(road.rect.centerx, road.rect.centery)
                 player_img = pygame.image.load(os.path.join(img_folder, ("pl-" + str(skin) + ".png"))).convert()
                 player.__init__(player.rect.centerx, player.rect.centery)
             elif not keys[pygame.K_RIGHT]:
@@ -1279,6 +1284,11 @@ while not STOP:
                         skin = 1
                     else:
                         skin += 1
+                    if skin == 4:
+                        road_img = pygame.image.load(os.path.join(img_folder, 'rd-2.png')).convert()
+                    else:
+                        road_img = pygame.image.load(os.path.join(img_folder, 'rd-1.png')).convert()
+                    road.__init__(road.rect.centerx, road.rect.centery)
                     player_img = pygame.image.load(os.path.join(img_folder, ("pl-" + str(skin) + ".png"))).convert()
                     player.__init__(player.rect.centerx, player.rect.centery)
             else:
@@ -1291,6 +1301,11 @@ while not STOP:
                 else:
                     skin -= 1
                 player_img = pygame.image.load(os.path.join(img_folder, ("pl-" + str(skin) + ".png"))).convert()
+                if skin == 4:
+                    road_img = pygame.image.load(os.path.join(img_folder, 'rd-2.png')).convert()
+                else:
+                    road_img = pygame.image.load(os.path.join(img_folder, 'rd-1.png')).convert()
+                road.__init__(road.rect.centerx, road.rect.centery)
                 player.__init__(player.rect.centerx, player.rect.centery)
             elif not keys[pygame.K_LEFT]:
                 la = True
@@ -1301,6 +1316,11 @@ while not STOP:
                         skin = skins
                     else:
                         skin -= 1
+                    if skin == 4:
+                        road_img = pygame.image.load(os.path.join(img_folder, 'rd-2.png')).convert()
+                    else:
+                        road_img = pygame.image.load(os.path.join(img_folder, 'rd-1.png')).convert()
+                    road.__init__(road.rect.centerx, road.rect.centery)
                     player_img = pygame.image.load(os.path.join(img_folder, ("pl-" + str(skin) + ".png"))).convert()
                     player.__init__(player.rect.centerx, player.rect.centery)
             else:
