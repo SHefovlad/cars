@@ -36,6 +36,7 @@ while not STOP:
     SK = []
     for i in sk:
         SK.append(i)
+    prices = [0, 100, 100, 200]
 
     player_img = pygame.image.load(os.path.join(img_folder, ("pl-" + str(skin) + ".png"))).convert()
     road_img = pygame.image.load(os.path.join(img_folder, 'rd-1.png')).convert()
@@ -77,8 +78,8 @@ while not STOP:
     ps_51_img = pygame.image.load(os.path.join(img_folder, 'ps-51.png')).convert()
     ps_6_img = pygame.transform.flip(ps_5_img, True, False)
     ps_61_img = pygame.transform.flip(ps_51_img, True, False)
-    #ps_7_img = pygame.image.load(os.path.join(img_folder, 'ps-6.png')).convert()
-    #ps_71_img = pygame.image.load(os.path.join(img_folder, 'ps-61.png')).convert()
+    ps_7_img = pygame.image.load(os.path.join(img_folder, 'ps-6.png')).convert()
+    ps_71_img = pygame.image.load(os.path.join(img_folder, 'ps-61.png')).convert()
     ps_1_img.set_colorkey(CK)
     ps_11_img.set_colorkey(CK)
     ps_2_img.set_colorkey(CK)
@@ -91,8 +92,8 @@ while not STOP:
     ps_51_img.set_colorkey(CK)
     ps_6_img.set_colorkey(CK)
     ps_61_img.set_colorkey(CK)
-    #ps_7_img.set_colorkey(CK)
-    #ps_71_img.set_colorkey(CK)
+    ps_7_img.set_colorkey(CK)
+    ps_71_img.set_colorkey(CK)
 
     key_rect = key_img.get_rect()
     dron_rect = oil_img.get_rect()
@@ -1070,8 +1071,10 @@ while not STOP:
         dron_img = pygame.transform.rotate(dron_img, degs + 90)
 
     font_type = pygame.font.Font('Teletactile.ttf', 20)
+    font_type_prices = pygame.font.Font('Teletactile.ttf', 10)
     text = font_type.render((str("Points: ") + str(points)), True, (0, 0, 0))
     textC = font_type.render((str("Coins: ") + str(coins)), True, (0, 0, 0))
+    textP = font_type_prices.render((str("  0") + str("C")), True, (0, 0, 0))
 
     road = Road(500, 0)
     oil = Oil(500, 10000)
@@ -1141,8 +1144,11 @@ while not STOP:
             DataFile = open("data.txt", "w")
             if points > record:
                 record = points
+            sk = ""
+            for i in SK:
+                sk += i
             running = False
-            DataFile.write((str(record) + "\n" + str(coins)))
+            DataFile.write((str(record) + "\n" + str(coins) + "\n" + sk))
             DataFile.close()
     #----------------------------------------------------------------#
         Wrect.centerx = player.rect.centerx; Wrect.centery = player.rect.centery
@@ -1285,6 +1291,7 @@ while not STOP:
                 road.__init__(road.rect.centerx, road.rect.centery)
                 player_img = pygame.image.load(os.path.join(img_folder, ("pl-" + str(skin) + ".png"))).convert()
                 player.__init__(player.rect.centerx, player.rect.centery)
+                textP = font_type_prices.render(" " + str(prices[skin - 1]) + "C", True, (0, 0, 0))
             elif not keys[pygame.K_RIGHT]:
                 ra = True
             if ty[0] >= 580 and ty[1] >= 670 and ty[0] <= 580 + 40 and ty[1] <= 670 + 40:
@@ -1301,6 +1308,7 @@ while not STOP:
                     road.__init__(road.rect.centerx, road.rect.centery)
                     player_img = pygame.image.load(os.path.join(img_folder, ("pl-" + str(skin) + ".png"))).convert()
                     player.__init__(player.rect.centerx, player.rect.centery)
+                    textP = font_type_prices.render(" " + str(prices[skin - 1]) + "C", True, (0, 0, 0))
             else:
                 screen.blit(ps_51_img, (580, 670))
         if menu:
@@ -1317,6 +1325,7 @@ while not STOP:
                     road_img = pygame.image.load(os.path.join(img_folder, 'rd-1.png')).convert()
                 road.__init__(road.rect.centerx, road.rect.centery)
                 player.__init__(player.rect.centerx, player.rect.centery)
+                textP = font_type_prices.render(" " + str(prices[skin - 1]) + "C", True, (0, 0, 0))
             elif not keys[pygame.K_LEFT]:
                 la = True
             if ty[0] >= 395 and ty[1] >= 670 and ty[0] <= 395 + 40 and ty[1] <= 670 + 40:
@@ -1333,8 +1342,37 @@ while not STOP:
                     road.__init__(road.rect.centerx, road.rect.centery)
                     player_img = pygame.image.load(os.path.join(img_folder, ("pl-" + str(skin) + ".png"))).convert()
                     player.__init__(player.rect.centerx, player.rect.centery)
+                    textP = font_type_prices.render(" " + str(prices[skin - 1]) + "C", True, (0, 0, 0))
             else:
                 screen.blit(ps_61_img, (395, 670))
+        if menu and SK[skin - 1] == "0":
+            if keys[pygame.K_SPACE]:
+                if coins >= prices[skin - 1]:
+                    coins -= prices[skin - 1]
+                    SK[skin - 1] = "1"
+                    DataFile = open("data.txt", "w")
+                    sk = ""
+                    for i in SK:
+                        sk += i
+                    DataFile.write((str(record) + "\n" + str(coins) + "\n" + sk))
+                    DataFile.close()
+            if ty[0] >= 483 and ty[1] >= 680 and ty[0] <= 483 + 50 and ty[1] <= 683 + 27:
+                screen.blit(ps_7_img, (483, 680))
+                screen.blit(textP, (483, 688))
+                if w == 1:
+                    if coins >= prices[skin - 1]:
+                        coins -= prices[skin - 1]
+                        SK[skin - 1] = "1"
+                        
+                        DataFile = open("data.txt", "w")
+                        sk = ""
+                        for i in SK:
+                            sk += i
+                        DataFile.write((str(record) + "\n" + str(coins) + "\n" + sk))
+                        DataFile.close()
+            else:
+                screen.blit(ps_71_img, (483, 680))
+                screen.blit(textP, (483, 690))
     #----------------------------------------------------------------#
         outro = True
         if outro and ou_r <= 1010:
