@@ -32,6 +32,10 @@ while not STOP:
     data = data.split("\n")
     record = int(data[0])
     coins = int(data[1])
+    sk = data[2]
+    SK = []
+    for i in sk:
+        SK.append(i)
 
     player_img = pygame.image.load(os.path.join(img_folder, ("pl-" + str(skin) + ".png"))).convert()
     road_img = pygame.image.load(os.path.join(img_folder, 'rd-1.png')).convert()
@@ -73,6 +77,8 @@ while not STOP:
     ps_51_img = pygame.image.load(os.path.join(img_folder, 'ps-51.png')).convert()
     ps_6_img = pygame.transform.flip(ps_5_img, True, False)
     ps_61_img = pygame.transform.flip(ps_51_img, True, False)
+    #ps_7_img = pygame.image.load(os.path.join(img_folder, 'ps-6.png')).convert()
+    #ps_71_img = pygame.image.load(os.path.join(img_folder, 'ps-61.png')).convert()
     ps_1_img.set_colorkey(CK)
     ps_11_img.set_colorkey(CK)
     ps_2_img.set_colorkey(CK)
@@ -85,6 +91,8 @@ while not STOP:
     ps_51_img.set_colorkey(CK)
     ps_6_img.set_colorkey(CK)
     ps_61_img.set_colorkey(CK)
+    #ps_7_img.set_colorkey(CK)
+    #ps_71_img.set_colorkey(CK)
 
     key_rect = key_img.get_rect()
     dron_rect = oil_img.get_rect()
@@ -1203,7 +1211,9 @@ while not STOP:
                 pygame.draw.arc(screen, "white", Wrect, 0, 30, 100)
         else:
             text = font_type.render((str("Record: ") + str(record)), True, (0, 0, 0))
+            textC = font_type.render((str("Coins: ") + str(coins)), True, (0, 0, 0))
             screen.blit(text, (770, 20))
+            screen.blit(textC, (770, 50))
     #--------------------пауза--------------------------------------#
         smd += 1
         if smd >= 15:
@@ -1253,11 +1263,11 @@ while not STOP:
             else:
                 screen.blit(ps_31_img, (355, 500))
         if menu:
-            if keys[pygame.K_SPACE]:
+            if keys[pygame.K_SPACE] and SK[skin - 1] == "1":
                 menu = False
             if ty[0] >= 355 and ty[1] >= 300 and ty[0] <= 355 + 300 and ty[1] <= 370:
                 screen.blit(ps_4_img, (355, 300))
-                if w == 1:
+                if w == 1 and SK[skin - 1] == "1":
                     menu = False
             else:
                 screen.blit(ps_41_img, (355, 300))
