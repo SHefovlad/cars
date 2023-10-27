@@ -149,7 +149,7 @@ while not STOP:
     cop_attack = False
     at_c = 0
     ATTACK = "central"
-    attack_list = ["central", "side", "spikes"]
+    attack_list = ["central", "side", "spikes", "bull"]
     cenAt_c = 0
     cenAt_d = 0
     bul_x = 0
@@ -176,6 +176,12 @@ while not STOP:
     coinR = random.randint(7000, 13000)
     cop_at_t = 2000
     la, ra = False, False
+    bot_at_sp = 0
+    bulAt_x = 500
+    bulAt_y = 500
+    bulAt_n = 0
+    bulAt_c = 0
+    bulAt_d = 0
 
     class Player(pygame.sprite.Sprite):
         def __init__(self, x, y):
@@ -498,6 +504,13 @@ while not STOP:
                                     i.rect.y -= push
                                 elif i.rect.y >= player.rect.bottom and push > 0:
                                     i.rect.y += push
+                    
+                    if cop_attack:
+                        if i.rect.right >= cop.rect.x and i.rect.x <= cop.rect.right:
+                            if i.rect.centerx <= cop.rect.centerx:
+                                i.rect.x -= 5
+                            else:
+                                i.rect.x += 5
                 self.rect.y += 4 + move_speed
                 if DMG > 0:
                     shake += 1 / len(bots)
@@ -513,7 +526,7 @@ while not STOP:
             self.rect.center = (x, y)
         
         def update(self):
-            global move_speed, points, coins, dodge, dodge_, cop_band, free_band, CoPdOwN, CoPdOwNN, cop_stun, cop_img, cop_flip, cop_to_plus, cop_to_minus, shake, hp, cop_attack, cop_at_t, bot_spawn, at_c, cenAt_c, cenAt_d, sidAt_s, sidAt_c, spikes_dam, ATTACK, bul_x, bul_y, bul_img, cenAt_x, cenAt_y, spkAt_c, spkAt_d, spkAt_x, cop_hp
+            global move_speed, points, coins, dodge, dodge_, cop_band, free_band, CoPdOwN, CoPdOwNN, cop_stun, cop_img, cop_flip, cop_to_plus, cop_to_minus, shake, hp, cop_attack, cop_at_t, bot_spawn, at_c, cenAt_c, cenAt_d, sidAt_s, sidAt_c, spikes_dam, ATTACK, bul_x, bul_y, bul_img, cenAt_x, cenAt_y, spkAt_c, spkAt_d, spkAt_x, bulAt_x, bulAt_y, bulAt_n, bulAt_c, bulAt_d, cop_hp, bot_at_sp
             if not pause and not menu:
                 dodge = False
                 cop_to_plus = False
@@ -665,7 +678,7 @@ while not STOP:
                         cop_hp = 100
 
                 if keys[pygame.K_x]:
-                    move_speed = input("attack - ")
+                    ATTACK = input("attack - ")
                 if cop_hp <= 0 and cop_attack and self.rect.y >= 800:
                     cop_attack = False
                     points += 20
@@ -675,8 +688,13 @@ while not STOP:
 
                 if cop_attack:
                     bot_spawn = False
+                    if bot_at_sp >= 900:
+                        bots[0].rect.bottom = 1
+                        bots[0].rect.x = random.randint(300, 700)
+                        bot_at_sp = 0
+                    bot_at_sp += 1
                     for i in bots:
-                        if i.rect.y >= 800 or i.rect.bottom <= 0 and i.rect.y <= 2100:
+                        if (i.rect.y >= 800 or i.rect.bottom <= 0) and i.rect.y <= 2100:
                             i.rect.y += 2000
 
                     if ATTACK == "central":
@@ -887,6 +905,35 @@ while not STOP:
                             spkAt_d = 0
                             bot_spawn = True
                             CoPdOwN = True
+
+                    if ATTACK == "bull":
+                        if bulAt_d == 0:
+                            if self.rect.centerx > bulAt_x + 5:
+                                self.rect.x -= 3
+                                if player.rect.y <= self.rect.bottom and player.rect.bottom >= self.rect.y - 10 and player.rect.right >= self.rect.x and player.rect.x <= self.rect.right:
+                                    player.rect.x -= 3
+                            elif self.rect.centerx < bulAt_x:
+                                self.rect.x += 3
+                                if player.rect.y <= self.rect.bottom and player.rect.bottom >= self.rect.y - 10 and player.rect.right >= self.rect.x and player.rect.x <= self.rect.right:
+                                    player.rect.x += 3
+                            else:
+                                bulAt_n += 1
+                            if self.rect.centery > bulAt_y + 5:
+                                self.rect.y -= 3
+                                if player.rect.y <= self.rect.bottom and player.rect.bottom >= self.rect.y - 10 and player.rect.right >= self.rect.x and player.rect.x <= self.rect.right:
+                                    player.rect.y -= 3
+                                if self.rect.y > 900:
+                                    self.rect.y -= 10
+                            elif self.rect.centery < bulAt_y:
+                                self.rect.y += 3
+                                if player.rect.y <= self.rect.bottom and player.rect.bottom >= self.rect.y - 10 and player.rect.right >= self.rect.x and player.rect.x <= self.rect.right:
+                                    player.rect.y += 3
+                            else:
+                                bulAt_n += 1
+                            
+                            if bulAt_n == 2:
+                                pass
+                                
 
                 else:
                     if self.rect.bottom <= 800:
@@ -1215,6 +1262,9 @@ while not STOP:
             screen.blit(textA, (42, 390))
             if Wrect.width <= 2000:
                 pygame.draw.arc(screen, "white", Wrect, 0, 30, 100)
+
+            pygame.draw.line(screen, (255, 0, 0), (0, 0), (1000, 800), 3)
+
         else:
             text = font_type.render((str("Record: ") + str(record)), True, (0, 0, 0))
             textC = font_type.render((str("Coins: ") + str(coins)), True, (0, 0, 0))
