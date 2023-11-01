@@ -182,6 +182,8 @@ while not STOP:
     bulAt_n = 0
     bulAt_c = 0
     bulAt_d = 0
+    LINE = False
+    l = 0
 
     class Player(pygame.sprite.Sprite):
         def __init__(self, x, y):
@@ -526,7 +528,7 @@ while not STOP:
             self.rect.center = (x, y)
         
         def update(self):
-            global move_speed, points, coins, dodge, dodge_, cop_band, free_band, CoPdOwN, CoPdOwNN, cop_stun, cop_img, cop_flip, cop_to_plus, cop_to_minus, shake, hp, cop_attack, cop_at_t, bot_spawn, at_c, cenAt_c, cenAt_d, sidAt_s, sidAt_c, spikes_dam, ATTACK, bul_x, bul_y, bul_img, cenAt_x, cenAt_y, spkAt_c, spkAt_d, spkAt_x, bulAt_x, bulAt_y, bulAt_n, bulAt_c, bulAt_d, cop_hp, bot_at_sp
+            global LINE, move_speed, points, coins, dodge, dodge_, cop_band, free_band, CoPdOwN, CoPdOwNN, cop_stun, cop_img, cop_flip, cop_to_plus, cop_to_minus, shake, hp, cop_attack, cop_at_t, bot_spawn, at_c, cenAt_c, cenAt_d, sidAt_s, sidAt_c, spikes_dam, ATTACK, bul_x, bul_y, bul_img, cenAt_x, cenAt_y, spkAt_c, spkAt_d, spkAt_x, bulAt_x, bulAt_y, bulAt_n, bulAt_c, bulAt_d, cop_hp, bot_at_sp
             if not pause and not menu:
                 dodge = False
                 cop_to_plus = False
@@ -907,6 +909,7 @@ while not STOP:
                             CoPdOwN = True
 
                     if ATTACK == "bull":
+                        bulAt_n = 0
                         if bulAt_d == 0:
                             if self.rect.centerx > bulAt_x + 5:
                                 self.rect.x -= 3
@@ -932,7 +935,8 @@ while not STOP:
                                 bulAt_n += 1
                             
                             if bulAt_n == 2:
-                                pass
+                                LINE = True
+                            else: LINE = False
                                 
 
                 else:
@@ -1138,6 +1142,7 @@ while not STOP:
         bots.append(b)
         all_sprites.add(b)
     AS = all_sprites
+    cop_sprite = pygame.sprite.Group(cop, player, bots[0])
 
     sm1 = [sm_11_img, sm_12_img, sm_13_img, sm_14_img]
 
@@ -1216,6 +1221,9 @@ while not STOP:
         for i in all_sprites:
             i.rect.x += ran
         all_sprites.draw(screen)
+        if LINE: pygame.draw.line(screen, (255, 0, 0), (cop.rect.centerx, cop.rect.centery), (player.rect.centerx, player.rect.centery), 3)
+        cop_sprite.draw(screen)
+
         for i in all_sprites:
             i.rect.x -= ran
         if not menu:
@@ -1262,9 +1270,7 @@ while not STOP:
             screen.blit(textA, (42, 390))
             if Wrect.width <= 2000:
                 pygame.draw.arc(screen, "white", Wrect, 0, 30, 100)
-
-            pygame.draw.line(screen, (255, 0, 0), (0, 0), (1000, 800), 3)
-
+            
         else:
             text = font_type.render((str("Record: ") + str(record)), True, (0, 0, 0))
             textC = font_type.render((str("Coins: ") + str(coins)), True, (0, 0, 0))
