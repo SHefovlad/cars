@@ -185,6 +185,7 @@ while not STOP:
     LINE = False
     tar_c = 0
     tar = False
+    SH = 0
 
     class Player(pygame.sprite.Sprite):
         def __init__(self, x, y):
@@ -212,6 +213,8 @@ while not STOP:
                     resD += 1
                 if resA < 4800:
                     resA += 1
+                if keys[pygame.K_z]:
+                    resA, resD, resS, resW = 4800, 600, 3000, 1800
                 if keys[pygame.K_d] and resD >= 600:
                     resD = 0
                     D = True
@@ -529,7 +532,7 @@ while not STOP:
             self.rect.center = (x, y)
         
         def update(self):
-            global tar, LINE, move_speed, points, coins, dodge, dodge_, cop_band, free_band, CoPdOwN, CoPdOwNN, cop_stun, cop_img, cop_flip, cop_to_plus, cop_to_minus, shake, hp, cop_attack, cop_at_t, bot_spawn, at_c, cenAt_c, cenAt_d, sidAt_s, sidAt_c, spikes_dam, ATTACK, bul_x, bul_y, bul_img, cenAt_x, cenAt_y, spkAt_c, spkAt_d, spkAt_x, bulAt_x, bulAt_y, bulAt_n, bulAt_c, bulAt_d, cop_hp, bot_at_sp
+            global SH, up, down, left, right, tar, LINE, move_speed, points, coins, dodge, dodge_, cop_band, free_band, CoPdOwN, CoPdOwNN, cop_stun, cop_img, cop_flip, cop_to_plus, cop_to_minus, shake, hp, cop_attack, cop_at_t, bot_spawn, at_c, cenAt_c, cenAt_d, sidAt_s, sidAt_c, spikes_dam, ATTACK, bul_x, bul_y, bul_img, cenAt_x, cenAt_y, spkAt_c, spkAt_d, spkAt_x, bulAt_x, bulAt_y, bulAt_n, bulAt_c, bulAt_d, cop_hp, bot_at_sp
             if not pause and not menu:
                 dodge = False
                 cop_to_plus = False
@@ -675,7 +678,8 @@ while not STOP:
                     else:
                         for i in bots:
                             i.rect.y += 1000
-                        ATTACK = attack_list[random.randint(0, 2)]
+                        #ATTACK = random.choice(attack_list)
+                        ATTACK = "bull"
                         cop.rect.y = 800
                         cop_attack = True
                         cop_hp = 100
@@ -911,54 +915,83 @@ while not STOP:
 
                     if ATTACK == "bull":
                         if not CoPdOwN:
-                            if bulAt_c < 3:
-                                tar = True
-                                LINE = True
-                                if not (player.rect.y <= cop.rect.bottom and player.rect.bottom >= cop.rect.y and player.rect.right >= cop.rect.x + 10 and player.rect.x <= cop.rect.right - 10):
-                                    if abs(self.rect.centerx - player.rect.centerx) >= 5:
-                                        bulAt_x += (self.rect.x - player.rect.x) / abs(self.rect.x - player.rect.x + 0.1) * -1
-                                    if abs(self.rect.centery - player.rect.centery) >= 5:
-                                        bulAt_y += (self.rect.y - player.rect.y) / abs(self.rect.y - player.rect.y + 0.1) * -1
+                            if player.rect.y <= self.rect.bottom and player.rect.bottom >= self.rect.y - 10 and player.rect.right >= self.rect.x and player.rect.x <= self.rect.right:
+                                cop_hp -= 0.1
+                            if bulAt_c < 3 and self.rect.y <= 800:
+                                if bulAt_n == 2:
+                                    bulAt_d = 1
+                                    tar = True
+                                    LINE = True
+                                    if not (player.rect.y <= cop.rect.bottom + 60 and player.rect.bottom >= cop.rect.y - 60 and player.rect.right >= cop.rect.x - 60 and player.rect.x <= cop.rect.right + 60):
+                                        if abs(self.rect.centerx - player.rect.centerx) >= 5:
+                                            self.rect.x += (self.rect.x - player.rect.x) / abs(self.rect.x - player.rect.x + 0.1) * -1
+                                        if abs(self.rect.centery - player.rect.centery) >= 5:
+                                            self.rect.y += (self.rect.y - player.rect.y) / abs(self.rect.y - player.rect.y + 0.1) * -1
                             else:
                                 LINE = False
                                 tar = False
-                                bulAt_n = -2
-                                self.rect.x += (bulAt_x - cop.rect.centerx) / ((math.sqrt((bulAt_x - cop.rect.centerx) ** 2 + (bulAt_y - cop.rect.centery) ** 2)) / 20)
-                                self.rect.y += (bulAt_y - cop.rect.centery) / ((math.sqrt((bulAt_x - cop.rect.centerx) ** 2 + (bulAt_y - cop.rect.centery) ** 2)) / 20)
-                                if abs(self.rect.centerx - bulAt_x) <= 10 and abs(self.rect.centery - bulAt_y) <= 10:
+                                if not (player.rect.y <= cop.rect.bottom and player.rect.bottom >= cop.rect.y and player.rect.right >= cop.rect.x + 10 and player.rect.x <= cop.rect.right - 10):
+                                    self.rect.x += (bulAt_x - cop.rect.centerx) / ((math.sqrt((bulAt_x - cop.rect.centerx) ** 2 + (bulAt_y - cop.rect.centery) ** 2)) / 20)
+                                    self.rect.y += (bulAt_y - cop.rect.centery) / ((math.sqrt((bulAt_x - cop.rect.centerx) ** 2 + (bulAt_y - cop.rect.centery) ** 2)) / 20)
+                                else:
                                     bulAt_c = 0
+                                    bulAt_d = 0
+                                    self.rect.x -= (bulAt_x - cop.rect.centerx) / ((math.sqrt((bulAt_x - cop.rect.centerx) ** 2 + (bulAt_y - cop.rect.centery) ** 2)) / 20)
+                                    self.rect.y -= (bulAt_y - cop.rect.centery) / ((math.sqrt((bulAt_x - cop.rect.centerx) ** 2 + (bulAt_y - cop.rect.centery) ** 2)) / 20)
+                                    if (player.rect.centerx - cop.rect.centerx) / ((math.sqrt((player.rect.centerx - cop.rect.centerx) ** 2 + (player.rect.centery - cop.rect.centery) ** 2)) / 20) > 0:
+                                        right += (player.rect.centerx - cop.rect.centerx) / ((math.sqrt((player.rect.centerx - cop.rect.centerx) ** 2 + (player.rect.centery - cop.rect.centery) ** 2)) / 15)
+                                    else:
+                                        left -= (player.rect.centerx - cop.rect.centerx) / ((math.sqrt((player.rect.centerx - cop.rect.centerx) ** 2 + (player.rect.centery - cop.rect.centery) ** 2)) / 15)
+                                    if (player.rect.centery - cop.rect.centery) / ((math.sqrt((player.rect.centerx - cop.rect.centerx) ** 2 + (player.rect.centery - cop.rect.centery) ** 2)) / 20) > 0:
+                                        down += (player.rect.centery - cop.rect.centery) / ((math.sqrt((player.rect.centery - cop.rect.centery) ** 2 + (player.rect.centerx - cop.rect.centerx) ** 2)) / 15)
+                                    else:
+                                        up -= (player.rect.centery - cop.rect.centery) / ((math.sqrt((player.rect.centery - cop.rect.centery) ** 2 + (player.rect.centerx - cop.rect.centerx) ** 2)) / 15)
+                                    SH += 5
+                                    hp -= 5
+                                if (abs(self.rect.centerx - bulAt_x) <= 10 and abs(self.rect.centery - bulAt_y) <= 10) or push > 0:
+                                    bulAt_c = 0
+                                    bulAt_d = 0
 
-                            bulAt_n = 0
                             if bulAt_d == 0:
+                                bulAt_n = 0
+                                LINE = False
+                                tar = False
                                 if self.rect.centerx > bulAt_x + 5:
-                                    self.rect.x -= 1
+                                    self.rect.x -= 4
                                     if player.rect.y <= self.rect.bottom and player.rect.bottom >= self.rect.y - 10 and player.rect.right >= self.rect.x and player.rect.x <= self.rect.right:
-                                        player.rect.x -= 1
+                                        player.rect.x -= 4
                                 elif self.rect.centerx < bulAt_x:
-                                    self.rect.x += 1
+                                    self.rect.x += 4
                                     if player.rect.y <= self.rect.bottom and player.rect.bottom >= self.rect.y - 10 and player.rect.right >= self.rect.x and player.rect.x <= self.rect.right:
-                                        player.rect.x += 1
+                                        player.rect.x += 4
                                 else:
                                     bulAt_n += 1
                                 if self.rect.centery > bulAt_y + 5:
-                                    self.rect.y -= 1
+                                    self.rect.y -= 4
                                     if player.rect.y <= self.rect.bottom and player.rect.bottom >= self.rect.y - 10 and player.rect.right >= self.rect.x and player.rect.x <= self.rect.right:
-                                        player.rect.y -= 1
+                                        player.rect.y -= 4
                                     if self.rect.y > 900:
                                         self.rect.y -= 10
                                 elif self.rect.centery < bulAt_y:
-                                    self.rect.y += 1
+                                    self.rect.y += 4
                                     if player.rect.y <= self.rect.bottom and player.rect.bottom >= self.rect.y - 10 and player.rect.right >= self.rect.x and player.rect.x <= self.rect.right:
-                                        player.rect.y += 1
+                                        player.rect.y += 4
                                 else:
                                     bulAt_n += 1
+                        else:
+                            LINE = False
+                            tar = False
+                            
+                        if cop_hp <= 0:
+                            bot_spawn = True
+                            CoPdOwN = True
 
 
                 else:
                     if self.rect.bottom <= 800:
                         if cop_at_t == 0:
                             cop_attack = True
-                            ATTACK = attack_list[random.randint(0, 2)]
+                            ATTACK = random.choice(attack_list)
                             cop_hp = 100
                         cop_at_t -= 1
 
@@ -1017,13 +1050,13 @@ while not STOP:
             self.rect.center = (x, y)
 
         def update(self):
-            global ATTACK, hp, shake, left, right, up, down
+            global ATTACK, hp, shake, left, right, up, down, SH
             if not pause and not menu:
                 if player.rect.y <= self.rect.bottom and player.rect.bottom >= self.rect.y and player.rect.right >= self.rect.x + 10 and player.rect.x <= self.rect.right - 10:
                     self.rect.x = -1000
                     self.rect.y = -1000
                     hp -= 3
-                    shake += 5
+                    SH += 3
                     if ATTACK == "side":
                         if sidAt_s == 0 or sidAt_s == 2 or sidAt_s == 4:
                             right += 10
@@ -1081,7 +1114,7 @@ while not STOP:
             self.rect.center = (x, y)
 
         def update (self):
-            global hp, left, right, spikes_dam, slow, s
+            global SH, hp, left, right, spikes_dam, slow, s
             if not pause and not menu:
                 if player.rect.y <= self.rect.bottom and player.rect.bottom >= self.rect.y and player.rect.right >= self.rect.x and player.rect.x <= self.rect.right and spikes_dam:
                     hp -= 5
@@ -1089,6 +1122,7 @@ while not STOP:
                         slow += 1
                     s = 0
                     spikes_dam = False
+                    SH += 4
                     if self.rect.centerx >= 500:
                         left += 15
                     else:
@@ -1162,7 +1196,7 @@ while not STOP:
     textC = font_type.render((str("Coins: ") + str(coins)), True, (0, 0, 0))
     textP = font_type_prices.render((str("  0") + str("C")), True, (0, 0, 0))
 
-    all_sprites = pygame.sprite.Group(road, pit, coin, spikes, oil, bullet, player, cop)
+    all_sprites = pygame.sprite.Group(road, pit, coin, spikes, oil, bullet, cop, player)
     for i in range(0, bot_count):
         b = Bot(500, random.randint(800, 50000))
         bots.append(b)
@@ -1190,6 +1224,9 @@ while not STOP:
         if hp > 100: hp = 100
 
         w = 0
+        shake += SH
+        SH -= 0.1
+        if SH < 0: SH = 0
         shake = int(shake)
         if shk_off == 1:
             shake = 0
@@ -1296,7 +1333,7 @@ while not STOP:
             screen.blit(textA, (42, 390))
             if Wrect.width <= 2000:
                 pygame.draw.arc(screen, "white", Wrect, 0, 30, 100)
-            if tar and not pause: target(player.rect.centerx, player.rect.centery)
+            if tar and not pause and not D: target(player.rect.centerx, player.rect.centery)
             
         else:
             text = font_type.render((str("Record: ") + str(record)), True, (0, 0, 0))
