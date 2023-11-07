@@ -1,4 +1,4 @@
-import pygame, os, random, math
+import pygame, os, random, math, PIL
 
 outro = False
 STOP = False
@@ -219,10 +219,10 @@ while not STOP:
                     resD = 0
                     D = True
                     all_sprites = pygame.sprite.Group(player)
-                    FPS = 60
+                    pygame.image.save(screen, 'screen.png')
+                    
                 elif resD >= 100:
                     D = False
-                    FPS = 60
                     all_sprites = AS
                 if keys[pygame.K_w] and resW >= 1800 and not D:
                     cop_hp -= 5
@@ -285,8 +285,8 @@ while not STOP:
                             else: cop_stop = False
                             for i in bots:
                                 if i.rect.y <= self.rect.bottom and i.rect.bottom >= self.rect.y + 20 and i.rect.right >= self.rect.x + 15 + ((i.rect.y - self.rect.y) / 4) and i.rect.x <= self.rect.right - 50:
-                                    i.rect.x -= 2 - slow
-                                    self.rect.x += 3 + slow
+                                    i.rect.x -= 1 - slow
+                                    self.rect.x += 4 + slow
                                     left = 0
                                     for _ in bots:
                                         if _ != i:
@@ -327,8 +327,8 @@ while not STOP:
                             else: cop_stop = False
                             for i in bots:
                                 if i.rect.y <= self.rect.bottom and i.rect.bottom >= self.rect.y + 20 and i.rect.right >= self.rect.x + 50 and i.rect.x <= self.rect.right - 15 - ((i.rect.y - self.rect.y) / 4):
-                                    i.rect.x += 2 - slow
-                                    self.rect.x -= 3 + slow
+                                    i.rect.x += 1 - slow
+                                    self.rect.x -= 4 + slow
                                     right = 0
                                     for _ in bots:
                                         if _ != i:
@@ -361,8 +361,9 @@ while not STOP:
                                 self.rect.y += 5 - slow
                         for i in bots:
                             if i.rect.y <= self.rect.bottom and i.rect.bottom + 10 >= self.rect.y + 10 and i.rect.right >= self.rect.x + 20 and i.rect.x <= self.rect.right - 20:
-                                i.rect.y -= 2 - slow
-                                self.rect.y += 3 + slow
+                                i.rect.y -= 0 - slow
+                                self.rect.y += 5 + slow
+                                down += 3
                     if keys[pygame.K_DOWN] and self.rect.bottom <= 790:
                         self.rect.y += 5 - slow
                         down -= 5 - slow
@@ -379,8 +380,8 @@ while not STOP:
                                 self.rect.y -= 5 - slow
                         for i in bots:
                             if i.rect.y <= self.rect.bottom and i.rect.bottom >= self.rect.y + 10 and i.rect.right >= self.rect.x + 20 and i.rect.x <= self.rect.right - 20:
-                                i.rect.y += 2 - slow
-                                self.rect.y -= 3 + slow
+                                i.rect.y += 0 - slow
+                                self.rect.y -= 5 + slow
                     for i in bots:
                         if up > 0 and (not keys[pygame.K_UP] or up > 5) and self.rect.y >= 10 and not (i.rect.y <= self.rect.bottom and i.rect.bottom >= self.rect.y + 10 and i.rect.right >= self.rect.x + 10 and i.rect.x <= self.rect.right - 10):
                             UP += 1
@@ -520,7 +521,7 @@ while not STOP:
                 self.rect.y += 4 + move_speed
                 if DMG > 0:
                     shake += 1 / len(bots)
-                    hp -= 0.01 * A
+                    hp -= 0.02 * A
                     DMG = 0
 
     class Cop(pygame.sprite.Sprite):
@@ -1254,7 +1255,8 @@ while not STOP:
     #----------------------------------------------------------------#
         if hp > 0:
             all_sprites.remove()
-            all_sprites.update()
+            if not D: all_sprites.update()
+            else: pygame.sprite.Group(player).update()
         else:
             DataFile = open("data.txt", "w")
             if points > record:
