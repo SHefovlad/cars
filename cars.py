@@ -1,4 +1,5 @@
-import pygame, os, random, math, PIL
+import pygame, os, random, math
+from PIL import Image, ImageFilter
 
 outro = False
 STOP = False
@@ -52,6 +53,7 @@ while not STOP:
     coin_img = pygame.image.load(os.path.join(img_folder, 'cn-1.png')).convert()
     cop_img = cop_nr_img
     spark_img = pygame.image.load(os.path.join(img_folder, 'sr-1.png')).convert()
+    blur_img = pygame.image.load('screen.png').convert()
     key_img = pygame.image.load(os.path.join(img_folder, 'ky-1.png')).convert()
     key_img.set_colorkey(CK)
     spark_img.set_colorkey(CK)
@@ -99,6 +101,7 @@ while not STOP:
     dron_rect = oil_img.get_rect()
     spark_rect = spark_img.get_rect()
     sm_rect = sm_11_img.get_rect()
+    blur_rect = blur_img.get_rect()
     all_sprites = pygame.sprite.Group()
     running = True
     Flip = False
@@ -196,7 +199,7 @@ while not STOP:
             self.rect.center = (x, y)
 
         def update(self):
-            global keys, Flip, player_img, flip, hp, up, down, left, right, i, UP, DOWN, RIGHT, LEFT, push, resW, resS, resA, scal, oil_img, shake, FLIP, cop_stop, cop_attack, cop_hp, resD, D, A, FPS, all_sprites, s, slow
+            global keys, Flip, player_img, flip, hp, up, down, left, right, i, UP, DOWN, RIGHT, LEFT, blur_img, push, resW, resS, resA, scal, oil_img, shake, FLIP, cop_stop, cop_attack, cop_hp, resD, D, A, FPS, all_sprites, s, slow
             keys = pygame.key.get_pressed()
             if not pause and not menu:
                 flip = 0
@@ -220,8 +223,15 @@ while not STOP:
                     D = True
                     all_sprites = pygame.sprite.Group(player)
                     pygame.image.save(screen, 'screen.png')
+                    with Image.open("screen.png") as img:
+                        img.load()
+                    blur_img = img.convert("L")
+                    #blur_img = blur_img.filter(ImageFilter.SMOOTH)
+                    blur_img = blur_img.filter(ImageFilter.FIND_EDGES)
+                    blur_img.save("screen.png")
+                    blur_img = pygame.image.load('screen.png').convert()
                     
-                elif resD >= 100:
+                elif resD >= 130:
                     D = False
                     all_sprites = AS
                 if keys[pygame.K_w] and resW >= 1800 and not D:
@@ -255,7 +265,7 @@ while not STOP:
                     self.rect.x += 1
                 if self.rect.right >= 800:
                     self.rect.x -= 1
-                if not keys[pygame.K_SPACE]:
+                if not keys[pygame.K_SPACE] and resD > 30:
                     if not (keys[pygame.K_LEFT] and keys[pygame.K_RIGHT]):
                         if keys[pygame.K_LEFT] and self.rect.x >= 250:
                             if not Flip:
@@ -679,8 +689,7 @@ while not STOP:
                     else:
                         for i in bots:
                             i.rect.y += 1000
-                        #ATTACK = random.choice(attack_list)
-                        ATTACK = "bull"
+                        ATTACK = random.choice(attack_list)
                         cop.rect.y = 800
                         cop_attack = True
                         cop_hp = 100
@@ -885,20 +894,20 @@ while not STOP:
                             if player.rect.y <= self.rect.bottom and player.rect.bottom >= self.rect.y - 10 and player.rect.right >= self.rect.x and player.rect.x <= self.rect.right:
                                 cop_hp -= 0.1
 
-                            if self.rect.y >= 405:
+                            if self.rect.centery >= 405:
                                 self.rect.y -= 5
                                 if player.rect.y <= self.rect.bottom and player.rect.bottom >= self.rect.y - 10 and player.rect.right >= self.rect.x and player.rect.x <= self.rect.right:
                                     player.rect.y -= 5
-                            elif self.rect.y <= 395:
+                            elif self.rect.centery <= 395:
                                 self.rect.y += 5
                                 if player.rect.y <= self.rect.bottom and player.rect.bottom >= self.rect.y - 10 and player.rect.right >= self.rect.x and player.rect.x <= self.rect.right:
                                     player.rect.y += 5
 
-                            if self.rect.x >= 505:
+                            if self.rect.centerx >= 505:
                                 self.rect.x -= 5
                                 if player.rect.y <= self.rect.bottom and player.rect.bottom >= self.rect.y - 10 and player.rect.right >= self.rect.x and player.rect.x <= self.rect.right:
                                     player.rect.x -= 5
-                            elif self.rect.x <= 495:
+                            elif self.rect.centerx <= 495:
                                 self.rect.x += 5
                                 if player.rect.y <= self.rect.bottom and player.rect.bottom >= self.rect.y - 10 and player.rect.right >= self.rect.x and player.rect.x <= self.rect.right:
                                     player.rect.x += 5
@@ -1204,6 +1213,7 @@ while not STOP:
         all_sprites.add(b)
     AS = all_sprites
     cop_sprite = pygame.sprite.Group(cop)
+    player_sprite = pygame.sprite.Group(player)
 
     sm1 = [sm_11_img, sm_12_img, sm_13_img, sm_14_img]
 
@@ -1336,7 +1346,16 @@ while not STOP:
             if Wrect.width <= 2000:
                 pygame.draw.arc(screen, "white", Wrect, 0, 30, 100)
             if tar and not pause and not D: target(player.rect.centerx, player.rect.centery)
-            
+            if D:
+                if resD <= 30:
+                    pygame.draw.circle(screen, (0, 0, 0), (player.rect.centerx, player.rect.centery), resD * 35)
+                else:
+                    screen.blit(blur_img, (0, 0), blur_rect)
+                player_sprite.draw(screen)
+            if resD > 120 and resD < 150:
+                pygame.draw.circle(screen, (0, 0, 0), (player.rect.centerx, player.rect.centery), 1000 - (resD - 120) * 70)
+                player_sprite.draw(screen)
+
         else:
             text = font_type.render((str("Record: ") + str(record)), True, (0, 0, 0))
             textC = font_type.render((str("Coins: ") + str(coins)), True, (0, 0, 0))
