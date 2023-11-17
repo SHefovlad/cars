@@ -1,4 +1,5 @@
 import pygame, os, random, math
+import functions
 from PIL import Image, ImageFilter
 
 outro = False
@@ -301,7 +302,7 @@ while not STOP:
                                     for _ in bots:
                                         if _ != i:
                                             if _.rect.x >= 250:
-                                                if _.rect.y <= i.rect.bottom and _.rect.bottom >= i.rect.y + 20 and _.rect.right >= i.rect.x + 20 and _.rect.x <= i.rect.right - 20:
+                                                if _.rect.y + 30 <= i.rect.bottom and _.rect.bottom >= i.rect.y + 30 and _.rect.right >= i.rect.x + 20 and _.rect.x <= i.rect.right - 20:
                                                     _.rect.x -= 5 + slow
                                             else:
                                                 self.rect.x += 5 - slow
@@ -343,7 +344,7 @@ while not STOP:
                                     for _ in bots:
                                         if _ != i:
                                             if _.rect.right <= 750:
-                                                if _.rect.y <= i.rect.bottom and _.rect.bottom >= i.rect.y + 20 and _.rect.right >= i.rect.x + 20 and _.rect.x <= i.rect.right - 20:
+                                                if _.rect.y + 30 <= i.rect.bottom and _.rect.bottom >= i.rect.y + 30 and _.rect.right >= i.rect.x + 20 and _.rect.x <= i.rect.right - 20:
                                                     _.rect.x += 5 - slow
                                             else:
                                                 self.rect.x -= 5 - slow
@@ -371,9 +372,9 @@ while not STOP:
                                 self.rect.y += 5 - slow
                         for i in bots:
                             if i.rect.y <= self.rect.bottom and i.rect.bottom + 10 >= self.rect.y + 10 and i.rect.right >= self.rect.x + 20 and i.rect.x <= self.rect.right - 20:
-                                i.rect.y -= 0 - slow
-                                self.rect.y += 5 + slow
-                                down += 3
+                                i.rect.y -= 1 - slow
+                                self.rect.y += 4 + slow
+                                up = 0
                     if keys[pygame.K_DOWN] and self.rect.bottom <= 790:
                         self.rect.y += 5 - slow
                         down -= 5 - slow
@@ -390,8 +391,8 @@ while not STOP:
                                 self.rect.y -= 5 - slow
                         for i in bots:
                             if i.rect.y <= self.rect.bottom and i.rect.bottom >= self.rect.y + 10 and i.rect.right >= self.rect.x + 20 and i.rect.x <= self.rect.right - 20:
-                                i.rect.y += 0 - slow
-                                self.rect.y -= 5 + slow
+                                i.rect.y += 1 - slow
+                                self.rect.y -= 4 + slow
                     for i in bots:
                         if up > 0 and (not keys[pygame.K_UP] or up > 5) and self.rect.y >= 10 and not (i.rect.y <= self.rect.bottom and i.rect.bottom >= self.rect.y + 10 and i.rect.right >= self.rect.x + 10 and i.rect.x <= self.rect.right - 10):
                             UP += 1
@@ -1172,15 +1173,9 @@ while not STOP:
     spikes = Spikes(260, 1000)
     coin = Coin(random.randint(300, 700), 1000)
 
-    def okr(a = 0, b = 0):
-        angle = okr_b
-        a = 100 * math.cos(angle) + player.rect.centerx - 25
-        b = 100 * math.sin(angle) + player.rect.centery - 25
-        return (a, b)
-    
     def okrd():
         global dron_img
-        (s, e) = okr()
+        (s, e) = functions.okr(player.rect.centerx, player.rect.centery, okr_b)
         dx = s - player.rect.centerx
         dy = e - player.rect.centery
         rads = math.atan2(-dy, dx)
@@ -1311,7 +1306,7 @@ while not STOP:
             screen.blit(textC, (770, 50))
             screen.blit(key_img, (10, 10), key_rect)
             okrd()
-            if A == -1: screen.blit(dron_img, okr(), dron_rect)
+            if A == -1: screen.blit(dron_img, functions.okr(player.rect.centerx, player.rect.centery, okr_b), dron_rect)
             if cop_attack:
                 pygame.draw.rect(screen, "black", (cop.rect.centerx - 53, cop.rect.y - 26, 106, 16))
                 pygame.draw.rect(screen, "red", (cop.rect.centerx - 50, cop.rect.y - 23, cop_hp, 10))
