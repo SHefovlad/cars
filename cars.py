@@ -83,6 +83,8 @@ while not STOP:
     ps_61_img = pygame.transform.flip(ps_51_img, True, False)
     ps_7_img = pygame.image.load(os.path.join(img_folder, 'ps-6.png')).convert()
     ps_71_img = pygame.image.load(os.path.join(img_folder, 'ps-61.png')).convert()
+    ps_8_img = pygame.image.load(os.path.join(img_folder, 'ps-7.png')).convert()
+    ps_81_img = pygame.image.load(os.path.join(img_folder, 'ps-71.png')).convert()
     ps_1_img.set_colorkey(CK)
     ps_11_img.set_colorkey(CK)
     ps_2_img.set_colorkey(CK)
@@ -97,6 +99,8 @@ while not STOP:
     ps_61_img.set_colorkey(CK)
     ps_7_img.set_colorkey(CK)
     ps_71_img.set_colorkey(CK)
+    ps_8_img.set_colorkey(CK)
+    ps_81_img.set_colorkey(CK)
 
     key_rect = key_img.get_rect()
     dron_rect = oil_img.get_rect()
@@ -227,7 +231,6 @@ while not STOP:
                     with Image.open("screen.png") as img:
                         img.load()
                     blur_img = img.convert("L")
-                    #blur_img = blur_img.filter(ImageFilter.SMOOTH)
                     blur_img = blur_img.filter(ImageFilter.FIND_EDGES)
                     blur_img.save("screen.png")
                     blur_img = pygame.image.load('screen.png').convert()
@@ -1384,6 +1387,13 @@ while not STOP:
                     shk_off *= -1
             else:
                 screen.blit(ps_21_img, (355, 400))
+        if pause or menu:
+            if ty[0] >= 355 and ty[1] >= 200 and ty[0] <= 355 + 300 and ty[1] <= 270:
+                screen.blit(ps_8_img, (355, 200))
+                if w == 1:
+                    pass
+            else:
+                screen.blit(ps_81_img, (355, 200))
         if pause:
             if ty[0] >= 355 and ty[1] >= 500 and ty[0] <= 355 + 300 and ty[1] <= 570:
                 screen.blit(ps_3_img, (355, 500))
