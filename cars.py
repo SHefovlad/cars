@@ -40,6 +40,8 @@ while not STOP:
         SK.append(i)
     prices = [0, 100, 100, 200]
 
+    help_text = "Вы едете на гоночном автомобиле по трассе. По пути вам придется уклоняться от других участников дорожного движения, ускользать от полиции, а если она вас все-таки настигла – драться за жизнь. Пока вы едете, вы: копите очки, из которых затем составляется ваш рекорд, собираете монеты, за которые можно покупать новые автомобили (которые кстати можно переключать в меню), стараетесь проехать как можно дальше. Но далеко уехать будет не так просто: вы постепенно набираете скорость, а значит  - все вокруг двигается все быстрее и быстрее.\nНе злите полицию – современные полицейские машины (представленные в моей игре) оснащены несколькими видами оружия. С помощью этого оружия они смогут вас атаковать: \n1.	Центральная атака  - П (полицейская машина) становится в центр дороги и начинает по вам стрелять. Не подъезжайте к ней до того, как она не прекратит стрелять!\n2.	Боковая атака – П ездит по боковым полосам и стреляет вбок. Иногда он делает передышку – этим нужно пользоваться.\n3.	Бросок шипов – П занимает позицию повыше и начинает выпускать шипы. От них вполне можно уворачиваться, но для этого нужна сноровка.\n4.	Таран – П усердно преследует вас и норовит протаранить. Если он все же решится – попробуйте остановить время и уклониться.\nКстати о способностях. Они активируются на кнопки клавиатуры и имеют такие функции:\n1.	W – выпускает волну, отталкивающую все, что  есть на дороге, и уничтожающую шипы.\n2.	D – останавливает время. Пока время остановлено, вы можете выехать из сложной ситуации или уклониться от пули.\n3.	S – выпускает пятно масла. Это масло может сломать П или просто расчистить дорогу.\n4.	А – выпускает дрон, который лечит вас от прикосновения к другим машинам."
+
     player_img = pygame.image.load(os.path.join(img_folder, ("pl-" + str(skin) + ".png"))).convert()
     road_img = pygame.image.load(os.path.join(img_folder, 'rd-1.png')).convert()
     oil_img = pygame.image.load(os.path.join(img_folder, 'oi-1.png')).convert()
@@ -194,6 +196,7 @@ while not STOP:
     tar_c = 0
     tar = False
     SH = 0
+    helpp = False
 
     class Player(pygame.sprite.Sprite):
         def __init__(self, x, y):
@@ -494,11 +497,12 @@ while not STOP:
                             i.rect.x += 4
                         else:
                             i.rect.x -= 4
-
                     if i.rect.y <= player.rect.bottom and i.rect.bottom >= player.rect.y and i.rect.right >= player.rect.x + 10 and i.rect.x <= player.rect.right - 10:
                         DMG += 1
                     if i.rect.y <= player.rect.y + 10 and i.rect.bottom >= player.rect.y + 10 and i.rect.right >= player.rect.x + 20 and i.rect.x <= player.rect.right - 20:
                         i.rect.y -= 4
+                        if i.rect.bottom + 20 > player.rect.y:
+                            i.rect.y -= 1
                     for _ in bots:
                         if _ != i:
                             if i.rect.y <= _.rect.bottom - 50 and i.rect.bottom >= _.rect.y + 10 and i.rect.right >= _.rect.x + 20 and i.rect.x <= _.rect.right - 20 and i.rect.bottom >= 0:
@@ -699,7 +703,7 @@ while not STOP:
                         cop_hp = 100
 
                 if keys[pygame.K_x]:
-                    ATTACK = input("attack - ")
+                    move_speed = int(input("attack - "))
                 if cop_hp <= 0 and cop_attack and self.rect.y >= 800:
                     cop_attack = False
                     points += 20
@@ -1101,16 +1105,18 @@ while not STOP:
         def update (self):
             global pit_c, hp, pit_pl_x, pit_pl_y, pit_img, left, right
             if not pause and not menu:
-                if player.rect.x == pit_pl_x and player.rect.y == pit_pl_y:
+                if player.rect.x == pit_pl_x:
                     pit_c += 1
                 else:
                     pit_c = 0
-                    pit_pl_x, pit_pl_y = player.rect.x, player.rect.y
-                if pit_c == 600:
+                    pit_pl_x = player.rect.x
+                if pit_c == int(600 - move_speed * 15):
                     pit_img = pygame.image.load(os.path.join(img_folder, 'pt-1.png')).convert()
                     pit_img = pygame.transform.rotate(pit_img, random.randint(0, 360))
                     pit.__init__(player.rect.centerx, -50)
-                if player.rect.y <= self.rect.bottom and player.rect.bottom >= self.rect.y and player.rect.right >= self.rect.x and player.rect.x <= self.rect.right and pit_c >= 600:
+                if pit_c >= int(600 - move_speed * 15) and self.rect.y >= 800:
+                    pit_c = 0
+                if player.rect.y <= self.rect.bottom and player.rect.bottom >= self.rect.y and player.rect.right >= self.rect.x and player.rect.x <= self.rect.right and pit_c >= int(600 - move_speed * 15):
                     pit_c = 0
                     hp -= 5
                     if player.rect.x <= 600:
@@ -1200,9 +1206,11 @@ while not STOP:
 
     font_type = pygame.font.Font('Teletactile.ttf', 20)
     font_type_prices = pygame.font.Font('Teletactile.ttf', 10)
+    font_type_help = pygame.font.Font(None, 20)
     text = font_type.render((str("Points: ") + str(points)), True, (0, 0, 0))
     textC = font_type.render((str("Coins: ") + str(coins)), True, (0, 0, 0))
     textP = font_type_prices.render((str("  0") + str("C")), True, (0, 0, 0))
+    textH = font_type_help.render(help_text, True, (0, 0, 0))
 
     all_sprites = pygame.sprite.Group(road, pit, coin, spikes, oil, bullet, cop, player)
     for i in range(0, bot_count):
@@ -1353,12 +1361,14 @@ while not STOP:
             if resD > 120 and resD < 150:
                 pygame.draw.circle(screen, (0, 0, 0), (player.rect.centerx, player.rect.centery), 1000 - (resD - 120) * 70)
                 player_sprite.draw(screen)
+            
 
         else:
             text = font_type.render((str("Record: ") + str(record)), True, (0, 0, 0))
             textC = font_type.render((str("Coins: ") + str(coins)), True, (0, 0, 0))
             screen.blit(text, (770, 20))
             screen.blit(textC, (770, 50))
+        if helpp: screen.blit(textH, (0, 0))
     #--------------------пауза--------------------------------------#
         smd += 1
         if smd >= 15:
@@ -1391,7 +1401,7 @@ while not STOP:
             if ty[0] >= 355 and ty[1] >= 200 and ty[0] <= 355 + 300 and ty[1] <= 270:
                 screen.blit(ps_8_img, (355, 200))
                 if w == 1:
-                    pass
+                    helpp = True
             else:
                 screen.blit(ps_81_img, (355, 200))
         if pause:
