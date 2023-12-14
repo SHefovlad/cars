@@ -1,10 +1,11 @@
 import pygame, os, random, math
 import functions
 from PIL import Image, ImageFilter
-
+#Переменные для анимации входа/выхода
 outro = False
 STOP = False
 while not STOP:
+    #Основные переменные
     WIDTH = 1000
     HEIGHT = 800
     FPS = 60
@@ -28,6 +29,7 @@ while not STOP:
     data = DataFile.read()
     DataFile.close()
 
+    #Переменные для работы с файлом
     skins = 5
     skin = 1
 
@@ -40,6 +42,7 @@ while not STOP:
         SK.append(i)
     prices = [0, 100, 100, 400, 200]
 
+    #Загрузка изображений, подгон их под размер и выделение цветового ключа, создание rect`ов
     player_img = pygame.image.load(os.path.join(img_folder, ("pl-" + str(skin) + ".png"))).convert()
     road_img = pygame.image.load(os.path.join(img_folder, 'rd-1.png')).convert()
     oil_img = pygame.image.load(os.path.join(img_folder, 'oi-1.png')).convert()
@@ -107,6 +110,8 @@ while not STOP:
     spark_rect = spark_img.get_rect()
     sm_rect = sm_11_img.get_rect()
     blur_rect = blur_img.get_rect()
+
+    #Переменные, использующиеся в коде
     all_sprites = pygame.sprite.Group()
     running = True
     Flip = False
@@ -125,9 +130,11 @@ while not STOP:
     DMG = 0
     stop = 0
     push = 0
+    #Кд способностей
     resW = 1800
     resS = 3000
     resD = 600
+    resA = 4800
     e = 0
     scal = 0
     pause = False
@@ -139,7 +146,7 @@ while not STOP:
     FLIP = 0
     smc = 1
     smd = 0
-    ty = [0, 0, 0, 0, 0, 0, 0, 0]
+    ty = [0, 0, 0, 0, 0, 0, 0, 0] #Массив для работы мышки, НЕ ТРОГАТЬ
     dodge = False
     direction = 0
     band_list = []
@@ -168,8 +175,7 @@ while not STOP:
     D = False
     A = 1
     move_speed = -15
-    resA = 4800
-    bot_count = 5
+    bot_count = 5 #Количество ботов (можно ставить сколько угодно, желательно до 20)
     bots = []
     dron_x, dron_y = 0, 0
     okr_b = 0
@@ -195,7 +201,8 @@ while not STOP:
     tar = False
     SH = 0
     helpp = False
-
+#Классы, по названиям все понятно
+#Все переменные у меня глобальные, поэтому в начале каждого класса огромный global
     class Player(pygame.sprite.Sprite):
         def __init__(self, x, y):
             pygame.sprite.Sprite.__init__(self)
@@ -209,6 +216,7 @@ while not STOP:
             keys = pygame.key.get_pressed()
             if not pause and not menu:
                 flip = 0
+                #Способности
                 if slow > 0:
                     s += 1
                 if s >= 300:
@@ -270,24 +278,25 @@ while not STOP:
                     self.rect.x += 1
                 if self.rect.right >= 800:
                     self.rect.x -= 1
+                    #Движение
                 if not keys[pygame.K_SPACE] and resD > 30:
                     if not (keys[pygame.K_LEFT] and keys[pygame.K_RIGHT]):
                         if keys[pygame.K_LEFT] and self.rect.x >= 250:
-                            if not Flip:
+                            if not Flip: #Поворот игрока на 15 градусов в зависимости от направления[1]
                                 FLIP = 1
                                 flip = 1
                             self.rect.x -= 5 - slow
-                            left -= 5 - slow
+                            left -= 5 - slow #Инерция[2]
                             if left < 0: left = 0
                             left += 5 - slow
-                            if cop.rect.y <= self.rect.bottom and cop.rect.bottom >= self.rect.y + 20 and cop.rect.right >= self.rect.x + 15 + ((cop.rect.y - self.rect.y) / 4) and cop.rect.x <= self.rect.right - 50:
-                                shake += 2
-                                if cop.rect.x >= 250 and not cop_attack:
+                            if cop.rect.y <= self.rect.bottom and cop.rect.bottom >= self.rect.y + 20 and cop.rect.right >= self.rect.x + 15 + ((cop.rect.y - self.rect.y) / 4) and cop.rect.x <= self.rect.right - 50: #Коллизия (все подобные строчки это коллизия)
+                                shake += 2 #Тряска экрана
+                                if cop.rect.x >= 250 and not cop_attack: #Сдвиг копа
                                     self.rect.x += 3 + slow
                                     cop.rect.x -= 2 - slow
                                     left = 0
                                     cop_stop = True
-                                    for _ in bots:
+                                    for _ in bots: #Коп двигает ботов
                                         if _.rect.x >= 250:
                                             if _.rect.y <= cop.rect.bottom and _.rect.bottom >= cop.rect.y + 20 and _.rect.right >= cop.rect.x + 20 and _.rect.x <= cop.rect.right - 20:
                                                 _.rect.x -= 5 + slow
@@ -298,12 +307,12 @@ while not STOP:
                                     left = 0
                                     self.rect.x += 5 - slow
                             else: cop_stop = False
-                            for i in bots:
+                            for i in bots: #Сдвиг ботов
                                 if i.rect.y <= self.rect.bottom and i.rect.bottom >= self.rect.y + 20 and i.rect.right >= self.rect.x + 15 + ((i.rect.y - self.rect.y) / 4) and i.rect.x <= self.rect.right - 50:
                                     i.rect.x -= 1 - slow
                                     self.rect.x += 4 + slow
                                     left = 0
-                                    for _ in bots:
+                                    for _ in bots: #Бот двигает бота
                                         if _ != i:
                                             if _.rect.x >= 250:
                                                 if _.rect.y + 30 <= i.rect.bottom and _.rect.bottom >= i.rect.y + 30 and _.rect.right >= i.rect.x + 20 and _.rect.x <= i.rect.right - 20:
@@ -314,6 +323,7 @@ while not STOP:
                                     if i.rect.x <= 250:
                                         self.rect.x += 5
                                         i.rect.x += 5
+                        #Дальше расписывать не буду, все то же самое
                         elif keys[pygame.K_RIGHT] and self.rect.x <= 660:
                             if not Flip:
                                 FLIP = -1
@@ -397,6 +407,7 @@ while not STOP:
                             if i.rect.y <= self.rect.bottom and i.rect.bottom >= self.rect.y + 10 and i.rect.right >= self.rect.x + 20 and i.rect.x <= self.rect.right - 20:
                                 i.rect.y += 1 - slow
                                 self.rect.y -= 4 + slow
+                    #[2]Инерция, проверка для ее появления, ее появление
                     for i in bots:
                         if up > 0 and (not keys[pygame.K_UP] or up > 5) and self.rect.y >= 10 and not (i.rect.y <= self.rect.bottom and i.rect.bottom >= self.rect.y + 10 and i.rect.right >= self.rect.x + 10 and i.rect.x <= self.rect.right - 10):
                             UP += 1
@@ -435,7 +446,7 @@ while not STOP:
                         right = 0
                 else:
                     up = 0; down = 0; left = 0; right = 0
-
+                #[1]Поворот
                 if flip == 1:
                     player_img = pygame.transform.rotate(player_img, 15)
                     Flip = True
@@ -461,11 +472,11 @@ while not STOP:
             global i, hp, r, DMG, _, stop, push, shake, band_list, bot_spawn, move_speed
             if not pause and not menu:
                 band_list = []
-                push /= 1.03
+                push /= 1.03 
                 if push <= 1.5:
                     push = 0
-                for i in bots:
-                    if i.rect.y < cop.rect.bottom or not (i.rect.bottom + 60 > cop.rect.y):
+                for i in bots: #Для каждого бота выполняется этот кусок кода
+                    if i.rect.y < cop.rect.bottom or not (i.rect.bottom + 60 > cop.rect.y): #Выделение свободных полос для ИИ копа
                         if i.rect.x >= 639:
                             band_list.append(3)
                         elif i.rect.x >= 508:
@@ -475,7 +486,7 @@ while not STOP:
                         elif i.rect.right >= 0:
                             band_list.append(0)
                     
-                    if i.rect.y >= 800 and bot_spawn:
+                    if i.rect.y >= 800 and bot_spawn: #Спавн ботов (перемещение с низа экрана вверх)
                         i.rect.y = random.randint(-400, -100)
                         r = random.randint(0, 3)
                         if r == 0:
@@ -490,19 +501,14 @@ while not STOP:
                     if not bot_spawn and i.rect.y >= 800:
                         i.rect.x = 3000
 
-                    if i.rect.right >= cop.rect.x - 10 and i.rect.x <= cop.rect.right + 10 and i.rect.y >= cop.rect.y and cop_attack:
-                        if i.rect.centerx >= 500:
-                            i.rect.x += 4
-                        else:
-                            i.rect.x -= 4
-                    if i.rect.y <= player.rect.bottom and i.rect.bottom >= player.rect.y and i.rect.right >= player.rect.x + 10 and i.rect.x <= player.rect.right - 10:
+                    if i.rect.y <= player.rect.bottom and i.rect.bottom >= player.rect.y and i.rect.right >= player.rect.x + 10 and i.rect.x <= player.rect.right - 10: #Расчет урона
                         DMG += 1
                     if i.rect.y <= player.rect.y + 10 and i.rect.bottom >= player.rect.y + 10 and i.rect.right >= player.rect.x + 20 and i.rect.x <= player.rect.right - 20:
                         i.rect.y -= 4
                         if i.rect.bottom + 20 > player.rect.y:
                             i.rect.y -= 1
                     for _ in bots:
-                        if _ != i:
+                        if _ != i: #Я сам не знаю что это, но это нужно
                             if i.rect.y <= _.rect.bottom - 50 and i.rect.bottom >= _.rect.y + 10 and i.rect.right >= _.rect.x + 20 and i.rect.x <= _.rect.right - 20 and i.rect.bottom >= 0:
                                 i.rect.y -= 4
                             if i.rect.y <= _.rect.bottom - 50 and i.rect.bottom >= _.rect.y + 10 and i.rect.right >= _.rect.x + 20 and i.rect.x <= _.rect.right - 20 and i.rect.bottom <= 0:
@@ -516,7 +522,7 @@ while not STOP:
                         i.rect.x = random.randint(300, 700)
                         i.rect.y = 2000
 
-                    for _ in bots:
+                    for _ in bots: #Разлет ботов от W
                         if _ != i:
                             if not (i.rect.y <= _.rect.bottom and i.rect.bottom >= _.rect.y and i.rect.right >= _.rect.x and i.rect.x <= _.rect.right):
                                 if i.rect.right <= player.rect.x and i.rect.x >= 250 and push > 0:
@@ -529,13 +535,13 @@ while not STOP:
                                     i.rect.y += push
                     
                     if cop_attack:
-                        if i.rect.right >= cop.rect.x and i.rect.x <= cop.rect.right:
+                        if i.rect.right >= cop.rect.x and i.rect.x <= cop.rect.right: #ОТъезд бота от активного копа, чтобы не мешать ему
                             if i.rect.centerx <= cop.rect.centerx:
                                 i.rect.x -= 5
                             else:
                                 i.rect.x += 5
                 self.rect.y += 4 + move_speed
-                if DMG > 0:
+                if DMG > 0: #Урон
                     shake += 1 / len(bots)
                     hp -= 0.02 * A
                     DMG = 0
@@ -551,6 +557,8 @@ while not STOP:
         def update(self):
             global SH, up, down, left, right, tar, LINE, move_speed, points, coins, dodge, dodge_, cop_band, free_band, CoPdOwN, CoPdOwNN, cop_stun, cop_img, cop_flip, cop_to_plus, cop_to_minus, shake, hp, cop_attack, cop_at_t, bot_spawn, at_c, cenAt_c, cenAt_d, sidAt_s, sidAt_c, spikes_dam, ATTACK, bul_x, bul_y, bul_img, cenAt_x, cenAt_y, spkAt_c, spkAt_d, spkAt_x, bulAt_x, bulAt_y, bulAt_n, bulAt_c, bulAt_d, cop_hp, bot_at_sp
             if not pause and not menu:
+                #ИИ копа[3]
+                #Очень сложно объяснить, к тому же тут почти ничего нельзя менять
                 dodge = False
                 cop_to_plus = False
                 cop_to_minus = False
@@ -682,27 +690,27 @@ while not STOP:
                                 if i.rect.y <= cop.rect.bottom and i.rect.bottom >= cop.rect.y and i.rect.right >= cop.rect.x + 10 and i.rect.x <= cop.rect.right - 10:
                                     self.rect.x += 5
                                     shake += 1
-
+                    #[3]Вот до сюда
                 if player.rect.y <= self.rect.bottom and player.rect.bottom >= self.rect.y - 10 and player.rect.right >= self.rect.x and player.rect.x <= self.rect.right and not cop_attack:
-                    hp -= 0.05 * A
-                #---------------------------------------------------------------#
+                    hp -= 0.05 * A #Урон
+                #----------------Атака копа (активное состояние)---------------------------------#
                 at_c -= 1
                 if keys[pygame.K_c] and at_c <= 0:
-                    at_c = 60
+                    at_c = 60 #На кнопку С можно искусственно активировать/деактивировать копа
                     if cop_attack:
                         cop_attack = False
                         bot_spawn = True
                     else:
-                        for i in bots:
+                        for i in bots: #Начало атаки (искусственное)
                             i.rect.y += 1000
                         ATTACK = random.choice(attack_list)
                         cop.rect.y = 800
                         cop_attack = True
                         cop_hp = 100
 
-                if keys[pygame.K_x]:
+                if keys[pygame.K_x]: #На кнопку Х можно выбрать атаку
                     move_speed = int(input("attack - "))
-                if cop_hp <= 0 and cop_attack and self.rect.y >= 800:
+                if cop_hp <= 0 and cop_attack and self.rect.y >= 800: #Смерть копа
                     cop_attack = False
                     points += 20
                     coins += 5
@@ -711,7 +719,7 @@ while not STOP:
 
                 if cop_attack:
                     bot_spawn = False
-                    if bot_at_sp >= 900:
+                    if bot_at_sp >= 900: #Скидывание одного бота раз в 15 секунд (900/60)
                         bots[0].rect.bottom = 1
                         bots[0].rect.x = random.randint(300, 700)
                         bot_at_sp = 0
@@ -719,14 +727,14 @@ while not STOP:
                     for i in bots:
                         if (i.rect.y >= 800 or i.rect.bottom <= 0) and i.rect.y <= 2100:
                             i.rect.y += 2000
-
+                    #Атаки (сложно, муторно, держится на соплях, лезть сюда при острой необходимости)
                     if ATTACK == "central":
                         if player.rect.y <= self.rect.bottom and player.rect.bottom >= self.rect.y - 10 and player.rect.right >= self.rect.x and player.rect.x <= self.rect.right:
                             if cenAt_c >= 90:
                                 hp -= 0.05
                             cop_hp -= 0.1
 
-                        if not CoPdOwN:
+                        if not CoPdOwN: #Этот и подобные[4] куски кода - "стремление" копа к определенной позиции (в данном случае (cenAt_x, cenAt_y))
                             if self.rect.centerx > cenAt_x + 5:
                                 self.rect.x -= 3
                                 if player.rect.y <= self.rect.bottom and player.rect.bottom >= self.rect.y - 10 and player.rect.right >= self.rect.x and player.rect.x <= self.rect.right:
@@ -746,13 +754,13 @@ while not STOP:
                                 if player.rect.y <= self.rect.bottom and player.rect.bottom >= self.rect.y - 10 and player.rect.right >= self.rect.x and player.rect.x <= self.rect.right:
                                     player.rect.y += 3
 
-                        if random.randint(0, int(1000 + move_speed * 10)) <= 1 and cenAt_c >= 90:
+                        if random.randint(0, int(1000 + move_speed * 10)) <= 1 and cenAt_c >= 90: #Смена позиции в рандомный момент 
                             cenAt_x = random.randint(400, 600)
                             cenAt_y = random.randint(300, 600)
 
                         if self.rect.centerx >= cenAt_x - 10 and self.rect.centerx <= cenAt_x + 10 and self.rect.centery <= cenAt_y + 10 and self.rect.centery >= cenAt_y - 10:
                             if cenAt_c < 90:
-                                cenAt_c += 1
+                                cenAt_c += 1 #Зарядка
                         else:
                             cenAt_c = 0
 
@@ -764,7 +772,7 @@ while not STOP:
                             dx = player.rect.centerx - cop.rect.centerx
                             dy = player.rect.centery - cop.rect.centery
                             rads = math.atan2(-dy,dx)
-                            rads %= 2 * math.pi
+                            rads %= 2 * math.pi #Математические расчеты угла наклона пули
                             degs = math.degrees(rads)
                             bul_img = pygame.image.load(os.path.join(img_folder, 'bl-1.png')).convert()
                             bul_img = pygame.transform.rotate(bul_img, degs - 90)
@@ -783,8 +791,8 @@ while not STOP:
                         if player.rect.y <= self.rect.bottom and player.rect.bottom >= self.rect.y - 10 and player.rect.right >= self.rect.x and player.rect.x <= self.rect.right:
                             cop_hp -= 0.1
                         
-                        if (sidAt_s == 0 or sidAt_s == 2 or sidAt_s == 4) and not CoPdOwN:
-                            self.rect.y -= 7
+                        if (sidAt_s == 0 or sidAt_s == 2 or sidAt_s == 4) and not CoPdOwN: 
+                            self.rect.y -= 7 #[4]
                             if player.rect.y <= self.rect.bottom and player.rect.bottom >= self.rect.y - 10 and player.rect.right >= self.rect.x and player.rect.x <= self.rect.right:
                                 player.rect.y -= 7
                             if self.rect.centerx >= 315:
@@ -795,20 +803,20 @@ while not STOP:
                                 self.rect.x += 5
                                 if player.rect.y <= self.rect.bottom and player.rect.bottom >= self.rect.y - 10 and player.rect.right >= self.rect.x and player.rect.x <= self.rect.right:
                                     player.rect.x += 5
-                            if sidAt_c >= 30:
+                            if sidAt_c >= 30: #Стрельба
                                 bul_img = pygame.image.load(os.path.join(img_folder, 'bl-1.png')).convert()
                                 bul_img = pygame.transform.rotate(bul_img, -90)
                                 bullet.__init__(self.rect.centerx, self.rect.centery)
                                 sidAt_c = 0
                             sidAt_c += 1
                             if self.rect.bottom <= 0:
-                                sidAt_s += 1
+                                sidAt_s += 1 #Переход на другую сторону
                                 self.rect.y = 900
                                 self.rect.centerx = 700
                                 bullet.rect.y = 1000 
 
                         if (sidAt_s == 1 or sidAt_s == 3 or sidAt_s == 5) and not CoPdOwN:
-                            self.rect.y -= 7
+                            self.rect.y -= 7 #[4]
                             if player.rect.y <= self.rect.bottom and player.rect.bottom >= self.rect.y - 10 and player.rect.right >= self.rect.x and player.rect.x <= self.rect.right:
                                 player.rect.y -= 7
                             if self.rect.centerx >= 705:
@@ -835,7 +843,7 @@ while not STOP:
                                 bullet.rect.y = 1000
 
                         if sidAt_s == 6 and cop_hp > 0:
-                            if sidAt_c < 300:
+                            if sidAt_c < 300: #[4]
                                 if self.rect.centerx <= 495 or self.rect.centerx >= 505:
                                     if self.rect.centerx < 500:
                                         if player.rect.y <= self.rect.bottom and player.rect.bottom >= self.rect.y - 10 and player.rect.right >= self.rect.x and player.rect.x <= self.rect.right:
@@ -867,11 +875,7 @@ while not STOP:
                             CoPdOwN = True
                 
                     if ATTACK == "spikes":
-                        
                         if spkAt_c <= 1500 and not CoPdOwN:
-                            if player.rect.y <= self.rect.bottom and player.rect.bottom >= self.rect.y - 10 and player.rect.right >= self.rect.x and player.rect.x <= self.rect.right:
-                                hp -= 0.05
-                                cop_hp -= 0.1
                             if player.rect.y <= self.rect.bottom and player.rect.bottom >= self.rect.y - 10 and player.rect.right >= self.rect.x and player.rect.x <= self.rect.right:
                                 hp -= 0.05
                                 cop_hp -= 0.1
@@ -1025,7 +1029,7 @@ while not STOP:
                 self.rect.y += 15 + move_speed
             if not pause and not menu:
                 if move_speed < 1:
-                    move_speed += 0.05
+                    move_speed += 0.05 #Ускорение игры
                 else:
                     move_speed += 0.0001
             if self.rect.y >= 0:
@@ -1051,7 +1055,7 @@ while not STOP:
                     self.rect.x = 2000
 
                 if scal < 300:
-                    scal += 10
+                    scal += 10 #Увеличение масла
 
                 oil_img = pygame.image.load(os.path.join(img_folder, 'oi-1.png')).convert()
                 oil_img = pygame.transform.scale(oil_img, (scal, scal))
@@ -1103,6 +1107,7 @@ while not STOP:
         def update (self):
             global pit_c, hp, pit_pl_x, pit_pl_y, pit_img, left, right
             if not pause and not menu:
+                #Сюда тоже лучше не лезть, яма появляется, если ты долго не двигаешься по х
                 if player.rect.x == pit_pl_x:
                     pit_c += 1
                 else:
@@ -1139,7 +1144,7 @@ while not STOP:
                     if slow <= 2:
                         slow += 1
                     s = 0
-                    spikes_dam = False
+                    spikes_dam = False #Переключатель для урона от шипов
                     SH += 4
                     if self.rect.centerx >= 500:
                         left += 15
@@ -1171,6 +1176,7 @@ while not STOP:
                     self.rect.x = random.randint(300, 700)
                     self.rect.y = -200
 
+    #Классы -> переменные
     road = Road(500, 0)
     oil = Oil(500, 10000)
     player = Player(508, 700)
@@ -1186,7 +1192,7 @@ while not STOP:
         dx = s - player.rect.centerx
         dy = e - player.rect.centery
         rads = math.atan2(-dy, dx)
-        rads %= 2 * math.pi
+        rads %= 2 * math.pi #Вычисление наклона дрона
         degs = math.degrees(rads)
         dron_img = pygame.image.load(os.path.join(img_folder, 'dr-1.png')).convert()
         dron_img.set_colorkey(CK)
@@ -1197,7 +1203,7 @@ while not STOP:
         if tar_c <= 10:
             pygame.draw.circle(screen, color, (x, y), tar_c * r, int((10 - tar_c + 1) * 1.5))
             tar_c += 0.15
-        else:
+        else: #Отрисовка эффекта цели
             bulAt_c += 1
             tar_c = -5
             if bulAt_c == 3: bulAt_x = player.rect.centerx; bulAt_y = player.rect.centery
@@ -1218,7 +1224,7 @@ while not STOP:
     cop_sprite = pygame.sprite.Group(cop)
     player_sprite = pygame.sprite.Group(player)
 
-    sm1 = [sm_11_img, sm_12_img, sm_13_img, sm_14_img]
+    sm1 = [sm_11_img, sm_12_img, sm_13_img, sm_14_img] #Дым
 
     textW = font_type.render((str("W")), True, (0, 0, 0))
     textD = font_type.render((str("D")), True, (0, 0, 0))
@@ -1239,7 +1245,7 @@ while not STOP:
 
         w = 0
         shake += SH
-        SH -= 0.1
+        SH -= 0.1 #Тряска экрана
         if SH < 0: SH = 0
         shake = int(shake)
         if shk_off == 1:
@@ -1267,20 +1273,19 @@ while not STOP:
                 w = event.button
     #----------------------------------------------------------------#
         if hp > 0:
-            all_sprites.remove()
-            if not D: all_sprites.update()
-            else: pygame.sprite.Group(player).update()
+            if not D: all_sprites.update() #Обновление всех спрайтов
+            else: pygame.sprite.Group(player).update() #Обновление только игрока (в случае D)
         else:
             DataFile = open("data.txt", "w")
             if points > record:
                 record = points
             sk = ""
-            for i in SK:
+            for i in SK: #Смерть игрока
                 sk += i
             running = False
             DataFile.write((str(record) + "\n" + str(coins) + "\n" + sk))
             DataFile.close()
-    #----------------------------------------------------------------#
+    #-------------------Отрисовка интерфейса и всего, что не спрайт-------------------------------#
         Wrect.centerx = player.rect.centerx; Wrect.centery = player.rect.centery
         okr_b += 0.03
         if not pause:
@@ -1351,12 +1356,12 @@ while not STOP:
             if tar and not pause and not D: target(player.rect.centerx, player.rect.centery)
             if D:
                 if resD <= 30:
-                    pygame.draw.circle(screen, (0, 0, 0), (player.rect.centerx, player.rect.centery), resD * 35)
+                    pygame.draw.circle(screen, (0, 0, 0), (player.rect.centerx, player.rect.centery), resD * 35) #Вход в D
                 else:
                     screen.blit(blur_img, (0, 0), blur_rect)
                 player_sprite.draw(screen)
             if resD > 120 and resD < 150:
-                pygame.draw.circle(screen, (0, 0, 0), (player.rect.centerx, player.rect.centery), 1000 - (resD - 120) * 70)
+                pygame.draw.circle(screen, (0, 0, 0), (player.rect.centerx, player.rect.centery), 1000 - (resD - 120) * 70) #Выход из D
                 player_sprite.draw(screen)
             
 
@@ -1378,7 +1383,7 @@ while not STOP:
                 screen.blit(sm_img, (player.rect.x + 30, player.rect.y), sm_rect)
             else:
                 screen.blit(sm_img, (player.rect.x, player.rect.y), sm_rect)
-    #----------------------------------------------------------------#
+    #----------------Кнопки в паузе и меню--------------------------#
         if pause:
             if ty[0] >= 355 and ty[1] >= 300 and ty[0] <= 355 + 300 and ty[1] <= 370:
                 screen.blit(ps_1_img, (355, 300))
@@ -1429,8 +1434,8 @@ while not STOP:
                     menu = False
             else:
                 screen.blit(ps_41_img, (355, 300))
-        if menu:
-            if keys[pygame.K_RIGHT] and ra:
+        if menu: #Смена скинов
+            if keys[pygame.K_RIGHT] and ra: 
                 ra = False
                 if skin == skins:
                     skin = 1
@@ -1534,3 +1539,4 @@ while not STOP:
         pygame.display.flip()
 
 pygame.quit()
+#Неужели это закончилось...
