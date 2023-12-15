@@ -128,7 +128,6 @@ while not STOP:
     points = 0
     d = 0
     DMG = 0
-    stop = 0
     push = 0
     #Кд способностей
     resW = 1800
@@ -469,7 +468,7 @@ while not STOP:
             self.rect.center = (x, y)
 
         def update(self):
-            global i, hp, r, DMG, _, stop, push, shake, band_list, bot_spawn, move_speed
+            global i, hp, r, DMG, _, push, shake, band_list, bot_spawn, move_speed
             if not pause and not menu:
                 band_list = []
                 push /= 1.03 
@@ -508,15 +507,12 @@ while not STOP:
                         if i.rect.bottom + 20 > player.rect.y:
                             i.rect.y -= 1
                     for _ in bots:
-                        if _ != i: #Я сам не знаю что это, но это нужно
+                        if _ != i: #Бот толкает бота
                             if i.rect.y <= _.rect.bottom - 50 and i.rect.bottom >= _.rect.y + 10 and i.rect.right >= _.rect.x + 20 and i.rect.x <= _.rect.right - 20 and i.rect.bottom >= 0:
-                                i.rect.y -= 4
+                                i.rect.y -= 2
                             if i.rect.y <= _.rect.bottom - 50 and i.rect.bottom >= _.rect.y + 10 and i.rect.right >= _.rect.x + 20 and i.rect.x <= _.rect.right - 20 and i.rect.bottom <= 0:
                                 i.rect.x += 10
                                 i.rect.y -= 100
-                    if stop > 9:
-                        i.rect.y -= 7
-                        stop = 0
                     
                     if i.rect.y <= -500:
                         i.rect.x = random.randint(300, 700)
@@ -1216,7 +1212,7 @@ while not STOP:
     textP = font_type_prices.render((str("  0") + str("C")), True, (0, 0, 0))
 
     all_sprites = pygame.sprite.Group(road, pit, coin, spikes, oil, bullet, cop, player)
-    for i in range(0, bot_count):
+    for i in range(bot_count):
         b = Bot(500, random.randint(800, 50000))
         bots.append(b)
         all_sprites.add(b)
