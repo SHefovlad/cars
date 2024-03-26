@@ -715,7 +715,7 @@ while not STOP:
                         cop_hp = 100
 
                 if keys[pygame.K_x]: #На кнопку Х можно выбрать атаку
-                    coin.rect.y = -1000
+                    ATTACK = input("attack - ")
                 if cop_hp <= 0 and cop_attack and self.rect.y >= 800: #Смерть копа
                     cop_attack = False
                     points += 20
@@ -1245,7 +1245,6 @@ while not STOP:
     cop_at_rect.height = 250
 
     while running:
-        if coins != coins_old or cdd >= 0: print(1)
         clock.tick(FPS)
         cop_at_rect.center = cop.rect.center
         
