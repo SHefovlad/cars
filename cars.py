@@ -1,6 +1,7 @@
 import pygame, os, random, math
 import functions
 from PIL import Image, ImageFilter
+import tkinter
 #Переменные для анимации входа/выхода
 outro = False
 STOP = False
@@ -15,7 +16,7 @@ while not STOP:
     GREEN = (0, 200, 0)
     BLUE = (0, 130, 255)
     CK = (0, 255, 0)
-    pygame.init()
+    P_init = pygame.init()
     #pygame.mixer.init()
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
     pygame.display.set_caption("cars")
@@ -30,7 +31,7 @@ while not STOP:
     DataFile.close()
 
     #Переменные для работы с файлом
-    skins = 5
+    skins = 6
     skin = 1
 
     data = data.split("\n")
@@ -40,7 +41,7 @@ while not STOP:
     SK = []
     for i in sk:
         SK.append(i)
-    prices = [0, 100, 100, 400, 200]
+    prices = [0, 100, 100, 400, 200, 100]
 
     #Загрузка изображений, подгон их под размер и выделение цветового ключа, создание rect`ов
     player_img = pygame.image.load(os.path.join(img_folder, ("pl-" + str(skin) + ".png"))).convert()
@@ -59,6 +60,8 @@ while not STOP:
     spark_img = pygame.image.load(os.path.join(img_folder, 'sr-1.png')).convert()
     blur_img = pygame.image.load('screen.png').convert()
     key_img = pygame.image.load(os.path.join(img_folder, 'ky-1.png')).convert()
+    arrow_img = pygame.transform.scale(pygame.image.load(os.path.join(img_folder, 'ar-1.png')).convert(), (80, 80))
+    arrow_img.set_colorkey(CK)
     key_img.set_colorkey(CK)
     spark_img.set_colorkey(CK)
     dron_img.set_colorkey(CK)
@@ -105,6 +108,7 @@ while not STOP:
     ps_8_img.set_colorkey(CK)
     ps_81_img.set_colorkey(CK)
 
+    arrow_rect = arrow_img.get_rect()
     key_rect = key_img.get_rect()
     dron_rect = oil_img.get_rect()
     spark_rect = spark_img.get_rect()
@@ -261,7 +265,7 @@ while not STOP:
                     oil.__init__(oil.rect.centerx, oil.rect.centery)
                     scal = 50
                 if keys[pygame.K_a] and resA >= 4800 and not D:
-                    A = -1
+                    A = -1 
                     resA = 0
                 elif resA >= 600:
                     A = 1
@@ -709,7 +713,7 @@ while not STOP:
                         cop_hp = 100
 
                 if keys[pygame.K_x]: #На кнопку Х можно выбрать атаку
-                    move_speed = int(input("attack - "))
+                    coin.rect.y = -1000
                 if cop_hp <= 0 and cop_attack and self.rect.y >= 800: #Смерть копа
                     cop_attack = False
                     points += 20
@@ -1174,7 +1178,7 @@ while not STOP:
                     coinR = random.randint(int(10000 - (move_speed * 100)), int(15000 - (move_speed * 100)))
                 if self.rect.y >= coinR and not cop_attack:
                     self.rect.x = random.randint(300, 700)
-                    self.rect.y = -200
+                    self.rect.y = -1000
 
     #Классы -> переменные
     road = Road(500, 0)
@@ -1252,6 +1256,7 @@ while not STOP:
             shake = 0
         ran = random.randint(-shake, shake)
         shake = 0
+        
         keys = pygame.key.get_pressed()
         p -= 1
         if keys[pygame.K_ESCAPE] and not menu:
@@ -1328,6 +1333,7 @@ while not STOP:
             pygame.draw.rect(screen, "black", (55, 15, 110, 30))
             pygame.draw.rect(screen, "orange", (60, 20, hp, 20))
             pygame.draw.circle(screen, "black", (50, 100), 34)
+            if coin.rect.bottom <= 0 and (coin.rect.y // 100) % 3 <= 1: screen.blit(arrow_img, (coin.rect.x - 20, 0), arrow_rect)
             if resW < 1800:
                 pygame.draw.circle(screen, "white", (50, 100), resW / 60)
             else:
@@ -1353,6 +1359,8 @@ while not STOP:
             screen.blit(textA, (42, 390))
             if Wrect.width <= 2000:
                 pygame.draw.arc(screen, "white", Wrect, 0, 30, 100)
+            if skin == 6:
+                player_img = pygame.image.load(os.path.join(img_folder, ("pl-6" + str(d % 2 + 1) + ".png"))).convert()
             if tar and not pause and not D: target(player.rect.centerx, player.rect.centery)
             if D:
                 if resD <= 30:
@@ -1398,13 +1406,20 @@ while not STOP:
                     shk_off *= -1
             else:
                 screen.blit(ps_21_img, (355, 400))
-        if pause or menu:
+        """
+        if pause or menu: #Помощь
             if ty[0] >= 355 and ty[1] >= 200 and ty[0] <= 355 + 300 and ty[1] <= 270:
                 screen.blit(ps_8_img, (355, 200))
                 if w == 1:
-                    os.startfile(r"help.txt")
+                    help_screen = tkinter.Tk()
+                    help_screen.title("Помощь")
+                    help_lbl = tkinter.Label(help_screen, text="Вы едете на гоночном автомобиле по трассе. По пути вам придется уклоняться от других участников дорожного движения,\nускользать от полиции, а если она вас все-таки настигла – драться за жизнь.\nПока вы едете, вы: копите очки, из которых затем составляется ваш рекорд,\nсобираете монеты, за которые можно покупать новые автомобили\n(которые кстати можно переключать в меню), стараетесь проехать как можно дальше.\nНо далеко уехать будет не так просто: вы постепенно набираете скорость,\nа значит  - все вокруг двигается все быстрее и быстрее.\nНе злите полицию – современные полицейские машины\n(представленные в моей игре) оснащены несколькими видами оружия.\nС помощью этого оружия они смогут вас атаковать:\n1.	Центральная атака  - П (полицейская машина) становится в центр дороги и начинает по вам стрелять.\nНе подъезжайте к ней до того, как она не прекратит стрелять!\n2.	Боковая атака – П ездит по боковым полосам и стреляет вбок. Иногда он делает передышку – этим нужно пользоваться.\n3.	Бросок шипов – П занимает позицию повыше и начинает выпускать шипы. От них вполне можно уворачиваться, но для этого нужна сноровка.\n4.	Таран – П усердно преследует вас и норовит протаранить. Если он все же решится – попробуйте остановить время и уклониться.\nКстати о способностях. Они активируются на кнопки клавиатуры и имеют такие функции:\n1.	W – выпускает волну, отталкивающую все, что  есть на дороге, и уничтожающую шипы.\n2.	D – останавливает время. Пока время остановлено, вы можете выехать из сложной ситуации или уклониться от пули.\n3.	S – выпускает пятно масла. Это масло может сломать П или просто расчистить дорогу.\n4.	А – выпускает дрон, который лечит вас от прикосновения к другим машинам.",
+                                     font=("Arial Bold", 18))  
+                    help_lbl.grid(column=0, row=0)
+                    help_screen.mainloop()  
             else:
                 screen.blit(ps_81_img, (355, 200))
+        """
         if pause:
             if ty[0] >= 355 and ty[1] >= 500 and ty[0] <= 355 + 300 and ty[1] <= 570:
                 screen.blit(ps_3_img, (355, 500))
@@ -1462,6 +1477,10 @@ while not STOP:
                         road_img = pygame.image.load(os.path.join(img_folder, 'rd-2.png')).convert()
                     else:
                         road_img = pygame.image.load(os.path.join(img_folder, 'rd-1.png')).convert()
+                    if skin == 6:
+                        player_img = pygame.image.load(os.path.join(img_folder, ("pl-61.png"))).convert()
+                    else:
+                        player_img = pygame.image.load(os.path.join(img_folder, ("pl-" + str(skin) + ".png"))).convert()
                     road.__init__(road.rect.centerx, road.rect.centery)
                     player_img = pygame.image.load(os.path.join(img_folder, ("pl-" + str(skin) + ".png"))).convert()
                     player.__init__(player.rect.centerx, player.rect.centery)
