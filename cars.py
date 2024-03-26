@@ -31,7 +31,7 @@ while not STOP:
     DataFile.close()
 
     #Переменные для работы с файлом
-    skins = 6
+    skins = 5
     skin = 1
 
     data = data.split("\n")
@@ -41,7 +41,7 @@ while not STOP:
     SK = []
     for i in sk:
         SK.append(i)
-    prices = [0, 100, 100, 400, 200, 100]
+    prices = [0, 100, 100, 400, 200]
 
     #Загрузка изображений, подгон их под размер и выделение цветового ключа, создание rect`ов
     player_img = pygame.image.load(os.path.join(img_folder, ("pl-" + str(skin) + ".png"))).convert()
@@ -132,6 +132,7 @@ while not STOP:
     points = 0
     d = 0
     DMG = 0
+    stop = 0
     push = 0
     #Кд способностей
     resW = 1800
@@ -204,6 +205,8 @@ while not STOP:
     tar = False
     SH = 0
     helpp = False
+    cdd = 0
+    coins_old = 0
 #Классы, по названиям все понятно
 #Все переменные у меня глобальные, поэтому в начале каждого класса огромный global
     class Player(pygame.sprite.Sprite):
@@ -472,7 +475,7 @@ while not STOP:
             self.rect.center = (x, y)
 
         def update(self):
-            global i, hp, r, DMG, _, push, shake, band_list, bot_spawn, move_speed
+            global i, hp, r, DMG, _, stop, push, shake, band_list, bot_spawn, move_speed
             if not pause and not menu:
                 band_list = []
                 push /= 1.03 
@@ -511,12 +514,15 @@ while not STOP:
                         if i.rect.bottom + 20 > player.rect.y:
                             i.rect.y -= 1
                     for _ in bots:
-                        if _ != i: #Бот толкает бота
+                        if _ != i: #Я сам не знаю что это, но это нужно
                             if i.rect.y <= _.rect.bottom - 50 and i.rect.bottom >= _.rect.y + 10 and i.rect.right >= _.rect.x + 20 and i.rect.x <= _.rect.right - 20 and i.rect.bottom >= 0:
-                                i.rect.y -= 2
+                                i.rect.y -= 4
                             if i.rect.y <= _.rect.bottom - 50 and i.rect.bottom >= _.rect.y + 10 and i.rect.right >= _.rect.x + 20 and i.rect.x <= _.rect.right - 20 and i.rect.bottom <= 0:
                                 i.rect.x += 10
                                 i.rect.y -= 100
+                    if stop > 9:
+                        i.rect.y -= 7
+                        stop = 0
                     
                     if i.rect.y <= -500:
                         i.rect.x = random.randint(300, 700)
@@ -1213,10 +1219,11 @@ while not STOP:
     font_type_help = pygame.font.Font(None, 20)
     text = font_type.render((str("Points: ") + str(points)), True, (0, 0, 0))
     textC = font_type.render((str("Coins: ") + str(coins)), True, (0, 0, 0))
+    textCO = font_type.render(str(0), True, (0, 0, 0))
     textP = font_type_prices.render((str("  0") + str("C")), True, (0, 0, 0))
 
     all_sprites = pygame.sprite.Group(road, pit, coin, spikes, oil, bullet, cop, player)
-    for i in range(bot_count):
+    for i in range(0, bot_count):
         b = Bot(500, random.randint(800, 50000))
         bots.append(b)
         all_sprites.add(b)
@@ -1238,6 +1245,7 @@ while not STOP:
     cop_at_rect.height = 250
 
     while running:
+        if coins != coins_old or cdd >= 0: print(1)
         clock.tick(FPS)
         cop_at_rect.center = cop.rect.center
         
@@ -1310,6 +1318,26 @@ while not STOP:
 
         for i in all_sprites:
             i.rect.x -= ran
+
+        
+        if coins != coins_old and cdd < -1:
+            if coins - coins_old < 0:
+                textCO = font_type.render(str(coins - coins_old), True, (0, 0, 0))
+            else:
+                textCO = font_type.render("+" + str(coins - coins_old), True, (0, 0, 0))
+            screen.blit(textCO, (880, 80))
+            cdd = 180
+        elif cdd >= 0:
+            if coins - coins_old < 0:
+                textCO = font_type.render(str(coins - coins_old), True, (0, 0, 0))
+            else:
+                textCO = font_type.render("+" + str(coins - coins_old), True, (0, 0, 0))
+            screen.blit(textCO, (880, 80))
+        else:
+            coins_old = coins
+
+        cdd -= 1
+
         if not menu:
             if slow > 0:
                 if FLIP == 1:
